@@ -7,16 +7,18 @@ import {
   VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
+import { useNavigate } from 'react-router-dom';
 const { Header, Sider, Content } = Layout;
+
 
 const menuItem=[
     {
-      key: '1',
+      key: '/nhan_vien',
       icon: <UserOutlined />,
       label: 'Quản lý nhân sự',
     },
     {
-      key: '2',
+      key: '/nhan_vien1',
       icon: <VideoCameraOutlined />,
       label: 'Quản lý phòng ban',
     },
@@ -27,12 +29,12 @@ const menuItem=[
     },
   ]
 const LayoutUser = (props) => {
+  const navigate = useNavigate();
   const { content } = props
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-
 
   return (
     <Layout>
@@ -41,8 +43,11 @@ const LayoutUser = (props) => {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={['1']}
+          // defaultSelectedKeys={['/nhan_vien']}
           items={menuItem}
+          onClick={({ key }) => {
+            navigate(key)
+          }}
         />
       </Sider>
       <Layout>

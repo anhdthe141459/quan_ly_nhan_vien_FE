@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { postsApi } from '../services/postsApi';
+import { nhanVienApi } from '../services/nhanviensApi';
+import isOpenDrawerReducer  from './slices/isOpenDrawerSlice';
 
 export const store = configureStore({
   reducer: {
     // Thêm postsApi reducer vào store
-    [postsApi.reducerPath]: postsApi.reducer,
+    [nhanVienApi.reducerPath]: nhanVienApi.reducer,
+    isOpenDrawerState: isOpenDrawerReducer,
   },
   // Thêm middleware RTK Query
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(postsApi.middleware),
+    getDefaultMiddleware().concat(nhanVienApi.middleware),
 });

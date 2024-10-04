@@ -3,7 +3,7 @@ import LayoutUser from '../../components/layouts/user/index'
 
 const Home = () => {
   return (
-    <LayoutUser content={<>123213</>}/>
+    <LayoutUser content={<></>}/>
   );
 }
 
