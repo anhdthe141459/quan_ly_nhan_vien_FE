@@ -1,44 +1,92 @@
 import React, { useEffect } from 'react';
 import {Col, DatePicker, Form, Input, Row, Select,Button, Space } from 'antd';
-import { useCreateOrUpdateNhanVienMutation,useGetAllNhanVienQuery } from '../../../../services/nhanviensApi';
+import { useCreateOrUpdateNhanVienMutation,useGetAllNhanVienQuery } from '../../../../services/nhanvienApis';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeDrawer } from '../../../../redux/slices/isOpenDrawerSlice';
 import dayjs from 'dayjs';
+import { useGetAllTenPhongBanQuery } from '../../../../services/phongBanApis';
 const { Option } = Select;
 
 
 const FormCreateNhanVien = (props) => {
+  const { data:allTenPhongBan, error:allTenPhongBanPhongError, isLoading:allTenPhongBanIsLoading } = useGetAllTenPhongBanQuery();
   const [createOrUpdateNhanVien, result] = useCreateOrUpdateNhanVienMutation();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
+  function generateRandomCode() {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let randomLetters = '';
+    
+    for (let i = 0; i < 2; i++) {
+      randomLetters += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+    const randomNumbers = Math.floor(100000 + Math.random() * 900000).toString();
+  
+    let result = randomLetters + randomNumbers;
+  
+    return result;
+  }
   const {formValue}=props;
-  console.log("formValue===========",formValue)
+
 
   if(formValue!=undefined){
     const dataForm={
       ...formValue,
       _id:formValue._id,
-      nam_sinh: dayjs(formValue.nam_sinh)
+      nam_sinh: dayjs(formValue.nam_sinh),
+      ngay_cap_cccd:dayjs(formValue.ngay_cap_cccd),
     }
     form.setFieldsValue(dataForm);
+    form.setFieldsValue({ma_phong_ban:formValue.ten_phong_ban});
   }
 
+  const defaultValues = {
+    ma_nhan_su:formValue!=undefined?formValue.ma_nhan_su:generateRandomCode(),
+    chuc_vu: 'Nhân viên',
+    thoi_gian_cong_hien: '0',
+    quoc_tich:'Việt Nam',
+  };
 
   const onClose = () => {
     dispatch(closeDrawer());
   };
 
   const onFinish = async(values) => {
-    await createOrUpdateNhanVien(values).unwrap();
+    const finalValues = {
+      ...defaultValues,
+      ...values,
+    };
+    if(formValue){
+      finalValues._id=formValue._id;
+      if(values.ma_phong_ban==formValue.ten_phong_ban) {
+        values.ma_phong_ban=formValue.ma_phong_ban
+      }
+    }
+    
+    const {ma_nhan_su,chuc_vu, thoi_gian_cong_hien,ma_phong_ban,so_cccd,ngay_cap_cccd,noi_cap_cccd, ...nhanVien}=finalValues;
+    const chucVuCoQuan={ma_nhan_su,chuc_vu,thoi_gian_cong_hien,ma_phong_ban};
+    if(chucVuCoQuan.ma_phong_ban==undefined){
+      chucVuCoQuan.ma_phong_ban=null;
+    }
+    const nhanVienCccd={so_cccd,ngay_cap_cccd,noi_cap_cccd};
+    await createOrUpdateNhanVien({nhanVien:nhanVien,chucVuCoQuan:chucVuCoQuan,nhanVienCccd:nhanVienCccd}).unwrap();
+    form.resetFields();
     onClose();
   };
-  const handleReset = () => {
-    form.resetFields(); // Reset tất cả các field
-  };
+
+  const optionTenPhongBans= allTenPhongBan?.map(phongBan=>{
+    return {
+        value:phongBan._id,
+        label:phongBan.ten_phong_ban
+    }
+  })
+
+
   return (
     <Form 
       form={form}
+      initialValues={defaultValues}
       layout="vertical"
       onFinish={onFinish}
     >
@@ -67,6 +115,10 @@ const FormCreateNhanVien = (props) => {
               required: true,
               message: 'Vui lòng không để trống số điện thoại',
             },
+            {
+              pattern: /^0[3|5|7|8|9][0-9]{8}$/,
+              message: 'Số điện thoại không hợp lệ!',
+            },
           ]}
         >
             <Input />
@@ -74,7 +126,22 @@ const FormCreateNhanVien = (props) => {
       </Col>
     </Row>
     <Row gutter={16}>
-      <Col span={6}>
+      <Col span={7}>
+        <Form.Item
+          name="ma_nhan_su"
+          label="Mã nhân viên"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng không để trống mã nhân sự',
+            },
+          ]}
+        >
+            <Input/>          
+        </Form.Item>
+
+      </Col>
+      <Col span={5}>
         <Form.Item
           name="nam_sinh"
           label="Ngày sinh"
@@ -101,18 +168,72 @@ const FormCreateNhanVien = (props) => {
         </Form.Item>
 
       </Col>
+      <Col span={6}>
+        <Form.Item
+          name="quoc_tich"
+          label="Quốc tịch"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng không để trống quốc tịch',
+            },
+          ]}
+        >
+            <Input />
+        </Form.Item>
+      </Col>
+    </Row>
+    <Row gutter={16}>
+      <Col span={7}>
+        <Form.Item
+          name="so_cccd"
+          label="Số CCCD"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng không để trống số CCCD',
+            },
+          ]}
+        >
+            <Input/>          
+        </Form.Item>
+
+      </Col>
+      <Col span={5}>
+        <Form.Item
+          name="ngay_cap_cccd"
+          label="Ngày cấp CCCD"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng chọn ngày cấp CCCD!',
+            },
+          ]}
+        >
+            <DatePicker/>
+        </Form.Item>
+
+      </Col>
       <Col span={12}>
         <Form.Item
           name="trinh_do_van_hoa"
           label="Trình độ văn hóa"
         >
-            <Input/>          
+        <Input/>          
         </Form.Item>
 
       </Col>
     </Row>
     <Row gutter={16}>
       <Col span={12}>
+        <Form.Item
+          name="noi_cap_cccd"
+          label="Nơi cấp CCCD"
+        >
+            <Input/>          
+        </Form.Item>
+      </Col>
+      <Col span={6}>
         <Form.Item
           name="dan_toc"
           label="Dân tộc"
@@ -126,7 +247,7 @@ const FormCreateNhanVien = (props) => {
             <Input />
         </Form.Item>
       </Col>
-      <Col span={12}>
+      <Col span={6}>
         <Form.Item
           name="ton_giao"
           label="Tôn giáo"
@@ -141,8 +262,9 @@ const FormCreateNhanVien = (props) => {
         </Form.Item>
       </Col>
     </Row>
+
     <Row gutter={16}>
-      <Col span={24}>
+      <Col span={12}>
         <Form.Item
           name="noi_sinh"
           label="Nơi sinh"
@@ -156,9 +278,7 @@ const FormCreateNhanVien = (props) => {
           <Input/>
         </Form.Item>
       </Col>
-    </Row>
-    <Row gutter={16}>
-      <Col span={24}>
+      <Col span={12}>
         <Form.Item
           name="nguyen_quan"
           label="Nguyên quán"
@@ -174,7 +294,7 @@ const FormCreateNhanVien = (props) => {
       </Col>
     </Row>
     <Row gutter={16}>
-      <Col span={24}>
+      <Col span={12}>
         <Form.Item
           name="dia_chi_hien_tai"
           label="Địa chỉ hiện tại"
@@ -188,12 +308,73 @@ const FormCreateNhanVien = (props) => {
           <Input/>
         </Form.Item>
       </Col>
+      <Col span={12}>
+        <Form.Item
+          name="tinh_trang_hon_nhan"
+          label="Tình trạng hôn nhân"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng không để trống tình trạng hôn nhân',
+            },
+          ]}
+        >
+            <Input/>
+        </Form.Item>
+      </Col>
     </Row>
     <Space/>
+    <Row gutter={16}>
 
+
+    </Row>
+    <Row gutter={16}>
+      <Col span={6}>
+        <Form.Item
+          name="chuc_vu"
+          label="Chức vụ"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng không để trống chức vụ',
+            },
+          ]}
+        >
+            <Input />
+        </Form.Item>
+      </Col>
+      <Col span={6}>
+        <Form.Item
+          name="thoi_gian_cong_hien"
+          label="Số năm cống hiến"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng không để số năm làm việc',
+            },
+          ]}
+        >
+            <Input/>
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item
+          name="ma_phong_ban"
+          label="Phòng ban"
+        >
+            <Select
+                allowClear
+                style={{width: '100%'}}
+                showSearch
+                optionFilterProp="label"
+                options={optionTenPhongBans}
+            />
+        </Form.Item>
+        </Col>
+    </Row>
     <Row gutter={16}>
       <Col span={12}>
-        <Form.Item wrapperCol={{ offset: 18, span: 16 }}>
+        <Form.Item wrapperCol={{ offset: 0, span: 16 }}>
           <Button style={{width:"100px"}} type="primary" htmlType="submit">
             Gửi
           </Button>

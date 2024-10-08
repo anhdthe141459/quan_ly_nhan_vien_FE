@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table } from 'antd';
-import { useGetAllNhanVienQuery, useRemoveNhanVienMutation,useSearchNhanVienQuery } from '../../../services/nhanviensApi';
+import { useGetAllNhanVienQuery, useRemoveNhanVienMutation,useSearchNhanVienQuery } from '../../../services/nhanvienApis';
 import DrawerComponent from '../../drawer';
 import FormCreateNhanVien from './form_create';
 import {
@@ -13,7 +13,9 @@ const { Option } = Select;
 const NhanVienContent = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [form] = Form.useForm();
-  const { data:allNhanVien, error:allNhanVienEror, isLoading:allNhanVienIsLoading } = useGetAllNhanVienQuery();
+  const { data:allNhanVien, error:allNhanVienEror, isLoading:allNhanVienIsLoading } = useGetAllNhanVienQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
   const { data:searchNhanVien, error:searchNhanVienEror, isLoading:searchNhanVienIsLoading } = useSearchNhanVienQuery(
     searchTerm ? { ten_nhan_su: searchTerm.ten_nhan_su, so_dien_thoai: searchTerm.so_dien_thoai, gioi_tinh: searchTerm.gioi_tinh, noi_sinh: searchTerm.noi_sinh, nguyen_quan: searchTerm.nguyen_quan, dia_chi_hien_tai:searchTerm.dia_chi_hien_tai } : {}, // Nếu có từ khóa, gọi API tìm kiếm
     { skip: !searchTerm }
@@ -143,7 +145,15 @@ const NhanVienContent = () => {
                   <Option value="female">Nữ</Option>
                 </Select>  
               </Form.Item>
-            </Col>          
+            </Col>  
+            <Col span={4}>
+              <Form.Item
+                name="thoi_gian_cong_hien"
+              >
+                <Input placeholder="Số năm làm việc">
+                </Input>  
+              </Form.Item>
+            </Col>        
           </Row>
           <Row gutter={16}>
             <Col span={6}>
@@ -162,12 +172,19 @@ const NhanVienContent = () => {
               </Form.Item>
             </Col>
             <Col span={6}>
-            <Form.Item
-              name="dia_chi_hien_tai"
-            >
-              <Input placeholder='Địa chỉ hiện tại'/>
-            </Form.Item>
-            </Col>          
+              <Form.Item
+                name="dia_chi_hien_tai"
+              >
+                <Input placeholder='Địa chỉ hiện tại'/>
+              </Form.Item>
+            </Col>  
+            <Col span={6}>
+              <Form.Item
+                name="quoc_tich"
+              >
+                <Input placeholder='Quốc tịch'/>
+              </Form.Item>
+            </Col>           
           </Row> 
           <Row gutter={16}>
             <Col span={12}>

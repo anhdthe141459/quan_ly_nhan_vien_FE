@@ -3,14 +3,13 @@ import { Button, Space,Drawer } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDrawer,closeDrawer } from '../../redux/slices/isOpenDrawerSlice';
 const DrawerComponent = (props) => {
-  const {textButton,content,title}=props;
+  const {textButton,content,title,onClickButtonDrawer}=props;
   const dispatch = useDispatch();
   const isOpen = useSelector((state) => state.isOpenDrawerState.isOpen);
   const [open, setOpen] = useState(isOpen);
 
-  
-  console.log("open=========",open)
   const showDrawer = () => {
+    if(onClickButtonDrawer) onClickButtonDrawer();
      setOpen(true);
      dispatch(openDrawer());
   };
@@ -23,7 +22,6 @@ const DrawerComponent = (props) => {
   }
   useEffect(() => {
     if(isOpen) return
-    console.log("check useEffect")
     check(isOpen);
   }, [isOpen]); 
   return (
@@ -33,7 +31,7 @@ const DrawerComponent = (props) => {
       </Button>
       <Drawer
         title={title}
-        width={720}
+        width={800}
         onClose={onClose}
         open={open}
         styles={{

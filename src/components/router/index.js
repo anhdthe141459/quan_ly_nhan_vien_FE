@@ -1,5 +1,7 @@
 import Home from '../../views/home/index'
 import NhanVien from '../../views/nhan_vien'
+import PhongBan from '../../views/phong_ban'
+
 
 const routers = [
     {
@@ -13,9 +15,9 @@ const routers = [
         element: NhanVien
     },
     {
-        path: '/nhan_vien1',
+        path: '/phong_ban',
         roleTarget: "ALL",
-        element: NhanVien
+        element: PhongBan
     },
 ]
 export default routers
