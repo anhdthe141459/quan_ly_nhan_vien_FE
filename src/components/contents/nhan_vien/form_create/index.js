@@ -160,6 +160,12 @@ const FormCreateNhanVien = (props) => {
         <Form.Item
           name="gioi_tinh"
           label="Giới tính"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng chọn giới tính',
+            },
+          ]}
         >
           <Select>
             <Option value="male">Nam</Option>

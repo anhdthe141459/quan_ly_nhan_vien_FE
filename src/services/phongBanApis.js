@@ -15,6 +15,9 @@ export const phongBanApi = createApi({
     getAllTenPhongBan: builder.query({
       query: () => 'phongBan/getAllTenPhongBan',
     }),
+    getAllNhanVienPhongBan: builder.query({
+      query: (maPhongBan) => `phongBan/getAllNhanVienPhongBan/${maPhongBan}`,
+    }),
     getAllNhanVienNotPhongBan: builder.query({
         query: (maPhongBan) => `phongBan/getAllNhanVienNotPhongBan/${maPhongBan}`,
         providesTags: (result) =>
@@ -39,4 +42,4 @@ export const phongBanApi = createApi({
 });
 
 // Export hooks auto-generated từ RTK Query
-export const {useGetAllPhongBanQuery,useGetAllTenPhongBanQuery,useGetAllNhanVienNotPhongBanQuery,useCreateOrUpdatePhongBanMutation,useRemovePhongBanMutation } = phongBanApi;
+export const {useGetAllPhongBanQuery,useGetAllTenPhongBanQuery,useGetAllNhanVienNotPhongBanQuery, useGetAllNhanVienPhongBanQuery, useCreateOrUpdatePhongBanMutation,useRemovePhongBanMutation } = phongBanApi;

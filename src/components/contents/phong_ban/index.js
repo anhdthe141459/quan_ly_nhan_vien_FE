@@ -126,7 +126,7 @@ const PhongBanContent = () => {
           </div>
         </div>
         <Table columns={columns} dataSource={allPhongBan} rowKey="_id"/>
-    </div>
+  </div>
   );
 
 }

@@ -35,9 +35,7 @@ const FormCreatePhongBan = (props) => {
   const onFinish = async(values) => {
     if(formValue){
         values._id=formValue._id;
-        if(values.ma_truong_phong==formValue.ten_truong_phong) {
-            values.ma_truong_phong=formValue.ma_truong_phong_id
-        }
+        values.ma_truong_phong=formValue.ma_truong_phong_id
     }
     console.log("val;iê==========",values)
     await createOrUpdatePhongBan({phongBan:values}).unwrap();

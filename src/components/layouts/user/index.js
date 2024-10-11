@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
+  BookOutlined,
   UserOutlined,
-  VideoCameraOutlined,
+  AuditOutlined,
+  DollarOutlined
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 import { useNavigate,useLocation } from 'react-router-dom';
@@ -19,13 +20,18 @@ const menuItem=[
     },
     {
       key: '/phong_ban',
-      icon: <VideoCameraOutlined />,
+      icon: <AuditOutlined />,
       label: 'Quản lý phòng ban',
     },
     {
-      key: '3',
-      icon: <UploadOutlined />,
-      label: 'nav 3',
+      key: '/cham_cong',
+      icon: <BookOutlined />,
+      label: 'Quản lý chấm công',
+    },
+    {
+      key: '/bang_luong',
+      icon: <DollarOutlined />,
+      label: 'Quản lý bảng lương',
     },
   ]
 const LayoutUser = (props) => {
