@@ -11,11 +11,26 @@ export const bangLuongApi = createApi({
         providesTags: (result) =>
           result ? [...result.map(({ id }) => ({ type: 'BangLuong', id })), 'BangLuong'] : ['BangLuong'],
     }),
+
     getAllTenNhanVienChuaCoBangLuong: builder.query({
         query: () => 'nhanVien/getAllTenNhanVienChuaCoBangLuong',
         providesTags: (result) =>
           result ? [...result.map(({ id }) => ({ type: 'BangLuong', id })), 'BangLuong'] : ['BangLuong'],
       }),
+    
+    getLuongNhanVienTheoThang: builder.query({
+        query: ([year,month]) => `bangLuong/getLuongNhanVienTheoThang?year=${year}&month=${month}`,
+        providesTags: (result) =>
+          result ? [...result.map(({ id }) => ({ type: 'BangLuong', id })), 'BangLuong'] : ['BangLuong'],
+      }),
+
+    searchBangLuong: builder.query({
+      query: (params) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `bangLuong/search?${queryString}`;
+      },
+    }),
+
     createOrUpdateBangLuong: builder.mutation({
     query: (bangLuong) => ({
         url:'bangLuong/createOrUpdate',
@@ -29,4 +44,4 @@ export const bangLuongApi = createApi({
 });
 
 // Export hooks auto-generated từ RTK Query
-export const {  useCreateOrUpdateBangLuongMutation , useGetAllBangLuongChoNhanVienQuery, useGetAllTenNhanVienChuaCoBangLuongQuery } = bangLuongApi;
+export const {  useCreateOrUpdateBangLuongMutation , useGetAllBangLuongChoNhanVienQuery, useGetAllTenNhanVienChuaCoBangLuongQuery, useGetLuongNhanVienTheoThangQuery, useSearchBangLuongQuery } = bangLuongApi;

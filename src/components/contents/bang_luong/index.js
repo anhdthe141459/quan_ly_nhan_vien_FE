@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import DrawerComponent from '../../drawer';
 import FormCreateBangLuong from './form_create';
-import { useGetAllBangLuongChoNhanVienQuery } from '../../../services/bangLuongApis';
+import { useGetAllBangLuongChoNhanVienQuery, useSearchBangLuongQuery } from '../../../services/bangLuongApis';
 
 
 
@@ -20,7 +20,22 @@ const BangLuongContent = () => {
     const { data:allBangLuong, error:allBangLuongEror, isLoading:allBangLuongIsLoading } = useGetAllBangLuongChoNhanVienQuery(undefined, {
         refetchOnMountOrArgChange: true,
       });
-    console.log(allBangLuong)
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const { data:searchBangLuong, error:searchBangLuongEror, isLoading:searchBangLuongIsLoading } = useSearchBangLuongQuery(
+      searchTerm ? { ten_nhan_su: searchTerm.ten_nhan_su, ma_nhan_su: searchTerm.ma_nhan_su} : {},
+      { skip: !searchTerm }
+    );
+    const bangLuongs = searchTerm ? searchBangLuong : allBangLuong;
+
+    const onSearchBangLuong = async(values) => {
+      setSearchTerm(values);
+    };
+  
+    const handleClickResetFormSearch = () =>{
+      form.resetFields();
+      setSearchTerm({});
+    }
     const columns = [
         {
           title: 'Mã số nhân viên',
@@ -46,6 +61,7 @@ const BangLuongContent = () => {
             title: 'Khấu trừ',
             dataIndex: 'khau_tru',
             key: 'khau_tru',
+            render: (text) => <p style={{color:"red"}}>{text} </p>
         },   
         {
           title: 'Action',
@@ -76,7 +92,7 @@ const BangLuongContent = () => {
           <Form 
             form={form}
             layout="vertical"
-            // onFinish={onSearchNhanVien}
+            onFinish={onSearchBangLuong}
           >
             <Row gutter={16}>
                 <Col span={6}>
@@ -102,8 +118,8 @@ const BangLuongContent = () => {
                 <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                   Tìm kiếm
                 </Button>
-                <Button style={{marginLeft:"20px"}} onClick={{}} >
-                  Clear 
+                <Button style={{marginLeft:"20px"}} onClick={handleClickResetFormSearch} >
+                  Làm mới 
                 </Button>
               </Form.Item>
             </Col>
@@ -112,7 +128,7 @@ const BangLuongContent = () => {
           </Form>  
           </div>
         </div>
-    <Table columns={columns} dataSource={allBangLuong} />
+    <Table columns={columns} dataSource={bangLuongs} />
   </div>
   );
 

@@ -11,6 +11,10 @@ export const nhanVienApi = createApi({
       providesTags: (result) =>
         result ? [...result.map(({ id }) => ({ type: 'NhanVien', id })), 'NhanVien'] : ['NhanVien'],
     }),
+    countNhanVien: builder.query({
+      query: () => 'nhanVien/countNhanVien',
+      providesTags: ['NhanVien'],
+    }),
     createOrUpdateNhanVien: builder.mutation({
       query: (nhanVien) => ({
          url:'nhanVien/crateOrUpdate',
@@ -37,4 +41,4 @@ export const nhanVienApi = createApi({
 });
 
 // Export hooks auto-generated từ RTK Query
-export const { useGetAllNhanVienQuery,useCreateOrUpdateNhanVienMutation,useRemoveNhanVienMutation,useSearchNhanVienQuery } = nhanVienApi;
+export const { useGetAllNhanVienQuery, useCreateOrUpdateNhanVienMutation, useRemoveNhanVienMutation, useSearchNhanVienQuery, useCountNhanVienQuery } = nhanVienApi;

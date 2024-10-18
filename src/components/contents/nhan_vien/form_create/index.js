@@ -235,6 +235,12 @@ const FormCreateNhanVien = (props) => {
         <Form.Item
           name="noi_cap_cccd"
           label="Nơi cấp CCCD"
+          rules={[
+            {
+              required: true,
+              message: 'Vui lòng chọn nơi cấp CCCD!',
+            },
+          ]}
         >
             <Input/>          
         </Form.Item>

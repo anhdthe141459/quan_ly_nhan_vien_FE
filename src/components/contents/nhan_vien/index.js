@@ -6,6 +6,7 @@ import FormCreateNhanVien from './form_create';
 import {
   SearchOutlined
 } from '@ant-design/icons';
+import { useGetAllTenPhongBanQuery } from '../../../services/phongBanApis';
 
 const { Option } = Select;
 
@@ -16,8 +17,12 @@ const NhanVienContent = () => {
   const { data:allNhanVien, error:allNhanVienEror, isLoading:allNhanVienIsLoading } = useGetAllNhanVienQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
+  const { data:allTenPhongBan, error:allTenPhongBanPhongError, isLoading:allTenPhongBanIsLoading } = useGetAllTenPhongBanQuery();
   const { data:searchNhanVien, error:searchNhanVienEror, isLoading:searchNhanVienIsLoading } = useSearchNhanVienQuery(
-    searchTerm ? { ten_nhan_su: searchTerm.ten_nhan_su, so_dien_thoai: searchTerm.so_dien_thoai, gioi_tinh: searchTerm.gioi_tinh, noi_sinh: searchTerm.noi_sinh, nguyen_quan: searchTerm.nguyen_quan, dia_chi_hien_tai:searchTerm.dia_chi_hien_tai } : {}, // Nếu có từ khóa, gọi API tìm kiếm
+    searchTerm ? { ten_nhan_su: searchTerm.ten_nhan_su, so_dien_thoai: searchTerm.so_dien_thoai, gioi_tinh: searchTerm.gioi_tinh,
+      nguyen_quan: searchTerm.nguyen_quan, dia_chi_hien_tai:searchTerm.dia_chi_hien_tai,quoc_tich: searchTerm.quoc_tich,
+       ma_nhan_su: searchTerm.ma_nhan_su, thoi_gian_cong_hien:searchTerm.thoi_gian_cong_hien, chuc_vu: searchTerm.chuc_vu, 
+       so_cccd: searchTerm.so_cccd, phong_ban_id:searchTerm.phong_ban_id   } : {}, // Nếu có từ khóa, gọi API tìm kiếm
     { skip: !searchTerm }
   );
   const nhanViens = searchTerm ? searchNhanVien : allNhanVien;
@@ -33,7 +38,12 @@ const NhanVienContent = () => {
     removeNhanVien(id);
   }
 
- 
+  const optionTenPhongBans= allTenPhongBan?.map(phongBan=>{
+    return {
+        value:phongBan._id,
+        label:phongBan.ten_phong_ban
+    }
+  })
 
   const columns = [
     {
@@ -121,7 +131,14 @@ const NhanVienContent = () => {
           >
 
           <Row gutter={16}>
-            <Col span={4}>
+          <Col span={3}>
+              <Form.Item
+                  name="ma_nhan_su"
+                >
+                    <Input placeholder="Mã nhân sự"/>
+                </Form.Item>
+            </Col>
+            <Col span={5}>
               <Form.Item
                   name="ten_nhan_su"
                 >
@@ -136,7 +153,7 @@ const NhanVienContent = () => {
                 <Input placeholder="Số điện thoại"/>
               </Form.Item>
             </Col>
-            <Col span={4}>
+            <Col span={3}>
               <Form.Item
                 name="gioi_tinh"
               >
@@ -146,23 +163,24 @@ const NhanVienContent = () => {
                 </Select>  
               </Form.Item>
             </Col>  
-            <Col span={4}>
+            <Col span={3}>
               <Form.Item
                 name="thoi_gian_cong_hien"
               >
                 <Input placeholder="Số năm làm việc">
                 </Input>  
               </Form.Item>
-            </Col>        
+            </Col>    
+            <Col span={4}>
+              <Form.Item
+                name="so_cccd"
+              >
+                <Input placeholder="Số CCCD">
+                </Input>  
+              </Form.Item>
+            </Col>     
           </Row>
           <Row gutter={16}>
-            <Col span={6}>
-              <Form.Item
-                  name="noi_sinh"
-                >
-                    <Input placeholder="Nơi sinh"/>
-                </Form.Item>
-            </Col>
             <Col span={6}>
               <Form.Item
                 name="nguyen_quan"
@@ -178,13 +196,34 @@ const NhanVienContent = () => {
                 <Input placeholder='Địa chỉ hiện tại'/>
               </Form.Item>
             </Col>  
-            <Col span={6}>
+            <Col span={4}>
               <Form.Item
                 name="quoc_tich"
               >
                 <Input placeholder='Quốc tịch'/>
               </Form.Item>
-            </Col>           
+            </Col>
+            <Col span={4}>
+            <Form.Item
+              name="phong_ban_id"
+            >
+                <Select
+                    placeholder="Phòng ban"
+                    allowClear
+                    style={{width: '100%'}}
+                    showSearch
+                    optionFilterProp="label"
+                    options={optionTenPhongBans}
+                />
+            </Form.Item>
+            </Col>  
+            <Col span={4}>
+              <Form.Item
+                name="chuc_vu"
+              >
+                <Input placeholder='Chức vụ'/>
+              </Form.Item>
+            </Col>          
           </Row> 
           <Row gutter={16}>
             <Col span={12}>
@@ -193,7 +232,7 @@ const NhanVienContent = () => {
                   Tìm kiếm
                 </Button>
                 <Button style={{marginLeft:"20px"}} onClick={handleClickResetFormSearch} >
-                  Clear 
+                  Làm mới 
                 </Button>
               </Form.Item>
             </Col>

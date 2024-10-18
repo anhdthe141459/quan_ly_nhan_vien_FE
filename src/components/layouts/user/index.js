@@ -5,7 +5,9 @@ import {
   BookOutlined,
   UserOutlined,
   AuditOutlined,
-  DollarOutlined
+  DollarOutlined,
+  HomeOutlined,
+  AreaChartOutlined
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 import { useNavigate,useLocation } from 'react-router-dom';
@@ -13,6 +15,11 @@ const { Header, Sider, Content } = Layout;
 
 
 const menuItem=[
+    {
+      key: '/',
+      icon: <HomeOutlined />,
+      label: 'Tổng quan',
+    },
     {
       key: '/nhan_vien',
       icon: <UserOutlined />,
@@ -33,6 +40,15 @@ const menuItem=[
       icon: <DollarOutlined />,
       label: 'Quản lý bảng lương',
     },
+    {
+      key: '/thong_ke',
+      icon: <AreaChartOutlined />,
+      label: 'Thống kê',
+      children: [
+        { key: '/thong_ke/cham_cong_nhan_vien', label: 'Bảng chấm công theo tháng' },
+        { key: '/thong_ke/luong_nhan_vien', label: 'Lương nhân viên' },
+      ],
+    },
   ]
 const LayoutUser = (props) => {
   const location = useLocation();
@@ -52,6 +68,7 @@ const LayoutUser = (props) => {
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItem}
+          defaultOpenKeys={['/thong_ke']}
           onClick={({ key }) => {
             navigate(key)
           }}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table, DatePicker } from 'antd';
-import { useGetAllNhanVienNotPhongBanQuery, useGetAllPhongBanQuery, useRemovePhongBanMutation } from '../../../services/phongBanApis';
+import { useGetAllNhanVienNotPhongBanQuery, useGetAllPhongBanQuery, useRemovePhongBanMutation, useSearchPhongBanQuery } from '../../../services/phongBanApis';
 import DrawerComponent from '../../drawer';
 import FormCreatePhongBan from './form_create';
 
@@ -21,12 +21,27 @@ const PhongBanContent = () => {
   const { data:allNhanVienNotTruongPhong, error:allNhanVienNotTruongPhongError, isLoading:allNhanVienNotTruongPhongIsLoading } = useGetAllNhanVienNotPhongBanQuery(selectedPhongBanId,{
     refetchOnMountOrArgChange: true,
   });
-    const [removePhongBan] =useRemovePhongBanMutation();
-    const handleClickRemovePhongBan = (id) =>{
-        removePhongBan(id);
-    }
-    const [searchTerm, setSearchTerm] = useState('');
-    const [form] = Form.useForm();
+
+  const [removePhongBan] =useRemovePhongBanMutation();
+  const handleClickRemovePhongBan = (id) =>{
+      removePhongBan(id);
+  }
+  const [searchTerm, setSearchTerm] = useState('');
+  const [form] = Form.useForm();
+
+  const { data:searchPhongBan, error:searchPhongBanEror, isLoading:searchPhongBanIsLoading } = useSearchPhongBanQuery(
+    searchTerm ? { ten_phong_ban: searchTerm.ten_phong_ban, ngay_thanh_lap: searchTerm.ngay_thanh_lap} : {},
+    { skip: !searchTerm }
+  );
+  const phongBans = searchTerm ? searchPhongBan : allPhongBan;
+  const onSearchPhongBan = async(values) => {
+    setSearchTerm(values);
+  };
+
+  const handleClickResetFormSearch = () =>{
+    form.resetFields();
+    setSearchTerm({});
+  }
 
   const onClickButtonDrawerPhongBan = (phongBanId) =>{
     setSelectedPhongBanId(phongBanId);
@@ -83,31 +98,16 @@ const PhongBanContent = () => {
           <Form 
             form={form}
             layout="vertical"
-            // onFinish={onSearchNhanVien}
+            onFinish={onSearchPhongBan}
           >
             <Row gutter={16}>
-                <Col span={6}>
+                <Col span={8}>
                 <Form.Item
                     name="ten_phong_ban"
                     >
                         <Input placeholder="Tên phòng ban"/>
                     </Form.Item>
-                </Col>
-                <Col span={6}>
-                <Form.Item
-                    name="ngay_thanh_lap"
-
-                >
-                    <DatePicker placeholder='Ngày thành lập' style={{width:"100%"}}/>
-                </Form.Item>
-                </Col>
-                <Col span={6}>
-                <Form.Item
-                    name="ten_truong_phong"
-                    >
-                        <Input placeholder="Tên trưởng phòng"/>
-                    </Form.Item>
-                </Col>    
+                </Col>   
             </Row>
             <Row gutter={16}>
             <Col span={12}>
@@ -115,8 +115,8 @@ const PhongBanContent = () => {
                 <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                   Tìm kiếm
                 </Button>
-                <Button style={{marginLeft:"20px"}} onClick={{}} >
-                  Clear 
+                <Button style={{marginLeft:"20px"}} onClick={handleClickResetFormSearch} >
+                  Làm mới 
                 </Button>
               </Form.Item>
             </Col>
@@ -125,7 +125,7 @@ const PhongBanContent = () => {
           </Form>  
           </div>
         </div>
-        <Table columns={columns} dataSource={allPhongBan} rowKey="_id"/>
+        <Table columns={columns} dataSource={phongBans} rowKey="_id"/>
   </div>
   );
 

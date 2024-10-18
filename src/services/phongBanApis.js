@@ -18,6 +18,10 @@ export const phongBanApi = createApi({
     getAllNhanVienPhongBan: builder.query({
       query: (maPhongBan) => `phongBan/getAllNhanVienPhongBan/${maPhongBan}`,
     }),
+    countPhongBan: builder.query({
+      query: () => 'phongBan/countPhongBan',
+      providesTags: ['PhongBan'],
+    }),
     getAllNhanVienNotPhongBan: builder.query({
         query: (maPhongBan) => `phongBan/getAllNhanVienNotPhongBan/${maPhongBan}`,
         providesTags: (result) =>
@@ -31,6 +35,14 @@ export const phongBanApi = createApi({
     }),
     invalidatesTags: ['PhongBan'],
     }),
+
+    searchPhongBan: builder.query({
+      query: (params) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `phongBan/search?${queryString}`;
+      },
+    }),
+
     removePhongBan: builder.mutation({
         query: (id) => ({
           url: `phongBan/delete/${id}`,
@@ -42,4 +54,4 @@ export const phongBanApi = createApi({
 });
 
 // Export hooks auto-generated từ RTK Query
-export const {useGetAllPhongBanQuery,useGetAllTenPhongBanQuery,useGetAllNhanVienNotPhongBanQuery, useGetAllNhanVienPhongBanQuery, useCreateOrUpdatePhongBanMutation,useRemovePhongBanMutation } = phongBanApi;
+export const {useGetAllPhongBanQuery,useGetAllTenPhongBanQuery,useGetAllNhanVienNotPhongBanQuery, useGetAllNhanVienPhongBanQuery, useCreateOrUpdatePhongBanMutation,useRemovePhongBanMutation, useSearchPhongBanQuery, useCountPhongBanQuery } = phongBanApi;
