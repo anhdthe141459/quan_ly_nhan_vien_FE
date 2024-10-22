@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { baseQueryWithReauth } from './baseQueryWithReauth';
 
 // Tạo API service với createApi
 export const phongBanApi = createApi({
   reducerPath: 'phongBanApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3001/' }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['PhongBan'],
   endpoints: (builder) => ({
     getAllPhongBan: builder.query({
@@ -14,6 +15,9 @@ export const phongBanApi = createApi({
     }),
     getAllTenPhongBan: builder.query({
       query: () => 'phongBan/getAllTenPhongBan',
+      providesTags: (result) =>
+        result ? [...result.map(({ id }) => ({ type: 'PhongBan', id })), 'PhongBan'] : ['PhongBan'],
+      invalidatesTags: ['PhongBan'],
     }),
     getAllNhanVienPhongBan: builder.query({
       query: (maPhongBan) => `phongBan/getAllNhanVienPhongBan/${maPhongBan}`,

@@ -70,7 +70,7 @@ const PhongBanContent = () => {
     },
 
     {
-      title: 'Action',
+      title: '',
       key: 'action',
       render: (_, record) => (
         <Space size="middle">

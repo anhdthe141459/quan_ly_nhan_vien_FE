@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { useGetLuongNhanVienTheoThangQuery } from '../../../../services/bangLuongApis';
+import { useGetLuongNhanVienTheoThangQuery, useLazyDownloadExcelLuongTheoThangQuery } from '../../../../services/bangLuongApis';
 
 
 
@@ -25,11 +25,14 @@ const ThongKeLuongNhanVienContent = () => {
     const { data:luongNhanVienTheoThang, error:luongNhanVienTheoThangError, isLoading:luongNhanVienTheoThangIsLoading } = useGetLuongNhanVienTheoThangQuery([selectedYear,selectedMonth], {
       refetchOnMountOrArgChange: true,
     });
+    const [triggerDownload,{ data:downloadExcelBangLuong }] = useLazyDownloadExcelLuongTheoThangQuery([selectedYear,selectedMonth],{
+      refetchOnMountOrArgChange: true,
+    });
+
     const onChangeDatePicker = (date, dateString) => {
         const [year, month] = dateString.split('-');
         setSelectedYear(year);
         setSelectedMonth(month);
-        console.log(year, month);
     };
 
     const searchLuongNhanVien= (values) =>{
@@ -52,6 +55,27 @@ const ThongKeLuongNhanVienContent = () => {
       setSearchData(luongNhanVienTheoThang);
     }
 
+    const handleClickDownloadExcelBangLuong = async() =>{
+
+      const { data } = await triggerDownload([selectedYear,selectedMonth]);
+  
+      if (data) {
+        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+        
+        // Tạo thẻ <a> và mô phỏng hành động tải file
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'luongNhanVien.xlsx'; // Tên file bạn muốn lưu
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+  
+        // Giải phóng bộ nhớ
+        window.URL.revokeObjectURL(url);
+    }
+  } 
+
     useEffect(() => {
       if (luongNhanVienTheoThang) {
         setSearchData(luongNhanVienTheoThang); // Cập nhật state khi có dữ liệu mới
@@ -73,6 +97,7 @@ const ThongKeLuongNhanVienContent = () => {
           title: 'Tiền lương cơ bản',
           dataIndex: 'tien_luong_co_ban',
           key: 'tien_luong_co_ban',
+          render: (text) => <p>{`${text?.toLocaleString()} VNĐ`} </p>
         },
         {
           title: 'Tổng số công giờ làm',
@@ -83,7 +108,7 @@ const ThongKeLuongNhanVienContent = () => {
           title: 'Tiền lương thực nhận',
           dataIndex: 'tien_luong_thuc_nhan',
           key: 'tien_luong_thuc_nhan',
-          render: (text) => <p style={{color:"blue"}}>{text} </p>
+          render: (text) => <p style={{color:"blue"}}>{`${text?.toLocaleString()} VNĐ`} </p>
         },
         {
           title: 'Ngày trả lương định kỳ',
@@ -97,7 +122,12 @@ const ThongKeLuongNhanVienContent = () => {
   return (
    <div className='container'>
       <div style={{marginBottom:"40px"}}>
-        <h1>Thống kê lương của nhân viên </h1>
+        <h1>
+          Thống kê lương của nhân viên 
+          <div style={{float:"right"}}> 
+              <Button style={{ borderColor: 'green', color: 'green', marginLeft:"10px" }} onClick={handleClickDownloadExcelBangLuong}>Download excel</Button>
+            </div>
+        </h1>
         <div className='search_phong_ban'>
         <Form 
           form={form}

@@ -7,16 +7,18 @@ import {
   AuditOutlined,
   DollarOutlined,
   HomeOutlined,
-  AreaChartOutlined
+  AreaChartOutlined,
+  DownOutlined
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme } from 'antd';
+import { Avatar, Button, Dropdown, Layout, Menu, theme } from 'antd';
 import { useNavigate,useLocation } from 'react-router-dom';
+import { useLogoutMutation } from '../../../services/authApis';
 const { Header, Sider, Content } = Layout;
 
 
 const menuItem=[
     {
-      key: '/',
+      key: '/tong_quan',
       icon: <HomeOutlined />,
       label: 'Tổng quan',
     },
@@ -50,6 +52,9 @@ const menuItem=[
       ],
     },
   ]
+
+
+  
 const LayoutUser = (props) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,6 +63,25 @@ const LayoutUser = (props) => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+  const [logOut, { isLoading }] = useLogoutMutation();
+  const onClickLogout = async() =>{
+    await logOut().unwrap();
+    localStorage.removeItem('accessToken');
+    navigate('/login')
+  }
+  const menu = (
+    <Menu>
+      <Menu.Item key="1" onClick={() => onClickLogout()}>
+        Đăng xuất
+      </Menu.Item>
+      {/* <Menu.Item key="2" onClick={() => console.log('Settings clicked')}>
+        Settings
+      </Menu.Item>
+      <Menu.Item key="3" onClick={() => console.log('Logout clicked')}>
+        Logout
+      </Menu.Item> */}
+    </Menu>
+  );
 
   return (
     <Layout>
@@ -91,6 +115,13 @@ const LayoutUser = (props) => {
               height: 64,
             }}
           />
+          <div style={{float:"right",marginRight:"50px"}}>
+            <Dropdown overlay={menu} trigger={['click']}>
+              <Avatar style={{ cursor: 'pointer' }} icon={<UserOutlined />} >
+                <DownOutlined style={{ marginLeft: 8 }} />
+              </Avatar> 
+            </Dropdown>
+          </div>
         </Header>
         <Content
           style={{

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table } from 'antd';
-import { useGetAllNhanVienQuery, useRemoveNhanVienMutation,useSearchNhanVienQuery } from '../../../services/nhanvienApis';
+import { useGetAllNhanVienQuery, useLazyDownloadExcelNhanVienQuery, useRemoveNhanVienMutation,useSearchNhanVienQuery } from '../../../services/nhanvienApis';
 import DrawerComponent from '../../drawer';
 import FormCreateNhanVien from './form_create';
 import {
@@ -15,6 +15,9 @@ const NhanVienContent = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [form] = Form.useForm();
   const { data:allNhanVien, error:allNhanVienEror, isLoading:allNhanVienIsLoading } = useGetAllNhanVienQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+  const [triggerDownload,{ data:downloadExcelNhanVien, isLoading:downloadExcelNhanVienLoading }] = useLazyDownloadExcelNhanVienQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
   const { data:allTenPhongBan, error:allTenPhongBanPhongError, isLoading:allTenPhongBanIsLoading } = useGetAllTenPhongBanQuery();
@@ -37,7 +40,6 @@ const NhanVienContent = () => {
   const handleClickRemoveNhanVien = (id) =>{
     removeNhanVien(id);
   }
-
   const optionTenPhongBans= allTenPhongBan?.map(phongBan=>{
     return {
         value:phongBan._id,
@@ -45,7 +47,33 @@ const NhanVienContent = () => {
     }
   })
 
+  const handleClickDownloadExcelNhanVien = async() =>{
+
+    const { data } = await triggerDownload();
+
+    if (data) {
+      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Tạo thẻ <a> và mô phỏng hành động tải file
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'file.xlsx'; // Tên file bạn muốn lưu
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      // Giải phóng bộ nhớ
+      window.URL.revokeObjectURL(url);
+  }
+} 
+
   const columns = [
+    {
+      title: 'Mã nhân sự',
+      dataIndex: 'ma_nhan_su',
+      key: 'ma_nhan_su',
+    },
     {
       title: 'Tên nhân sự',
       dataIndex: 'ten_nhan_su',
@@ -99,7 +127,7 @@ const NhanVienContent = () => {
       key: 'trinh_do_van_hoa',
     },
     {
-      title: 'Action',
+      title: '',
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
@@ -122,7 +150,12 @@ const NhanVienContent = () => {
   return (
     <div className='container'>
         <div style={{marginBottom:"40px"}}>
-          <h1>Quản lý nhân sự <div style={{float:"right"}}> <DrawerComponent  textButton={"Thêm mới"} content={<FormCreateNhanVien/>} title={"Thông tin nhân sự"}/></div></h1>
+          <h1>Quản lý nhân sự 
+            <div style={{float:"right"}}>
+               <DrawerComponent  textButton={"Thêm mới"} content={<FormCreateNhanVien/>} title={"Thông tin nhân sự"}/> 
+               <Button style={{ borderColor: 'green', color: 'green', marginLeft:"10px" }} onClick={handleClickDownloadExcelNhanVien}>Download excel</Button>
+            </div>
+          </h1>
           <div className='search_nhan_vien'>
           <Form 
             form={form}

@@ -10,7 +10,6 @@ const { Option } = Select;
 
 const FormCreateBangLuong = (props) => {
   const {formValue}=props;
-  console.log(formValue)
   const { data:allNhanVienChuaCoBangLuong, error:allNhanVienChuaCoBangLuongError, isLoading:allNhanVienChuaCoBangLuongIsLoading } = useGetAllTenNhanVienChuaCoBangLuongQuery();
 
   const [createOrUpdateBangLuong, result] = useCreateOrUpdateBangLuongMutation();

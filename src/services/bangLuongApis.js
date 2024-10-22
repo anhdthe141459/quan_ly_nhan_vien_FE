@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
+import { baseQueryWithReauth } from './baseQueryWithReauth';
 // Tạo API service với createApi
 export const bangLuongApi = createApi({
   reducerPath: 'bangLuongApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3001/' }),
+  baseQuery:baseQueryWithReauth,
   tagTypes: ['BangLuong'],
   endpoints: (builder) => ({
     getAllBangLuongChoNhanVien: builder.query({
@@ -40,8 +40,23 @@ export const bangLuongApi = createApi({
     invalidatesTags: ['BangLuong'],
     }),
 
+    downloadExcelBangLuong: builder.query({
+      query: () => ({
+          url: 'bangLuong/downloadExcel',
+          method: 'GET',
+          responseHandler: (response) => response.blob(), // Handle the response as a Blob
+      }),
+    }),
+    downloadExcelLuongTheoThang: builder.query({
+      query: ([year,month]) => ({
+          url: `bangLuong/downloadExcelLuongTheoThang?year=${year}&month=${month}`,
+          method: 'GET',
+          responseHandler: (response) => response.blob(), // Handle the response as a Blob
+      }),
+    }),
+
   }),
 });
 
 // Export hooks auto-generated từ RTK Query
-export const {  useCreateOrUpdateBangLuongMutation , useGetAllBangLuongChoNhanVienQuery, useGetAllTenNhanVienChuaCoBangLuongQuery, useGetLuongNhanVienTheoThangQuery, useSearchBangLuongQuery } = bangLuongApi;
+export const {  useCreateOrUpdateBangLuongMutation , useGetAllBangLuongChoNhanVienQuery, useGetAllTenNhanVienChuaCoBangLuongQuery, useGetLuongNhanVienTheoThangQuery, useSearchBangLuongQuery, useLazyDownloadExcelBangLuongQuery, useLazyDownloadExcelLuongTheoThangQuery } = bangLuongApi;

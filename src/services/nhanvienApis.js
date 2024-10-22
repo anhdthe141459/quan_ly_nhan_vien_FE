@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
+import { baseQueryWithReauth } from './baseQueryWithReauth';
 // Tạo API service với createApi
 export const nhanVienApi = createApi({
   reducerPath: 'nhanVienApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3001/' }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['NhanVien'],
   endpoints: (builder) => ({
     getAllNhanVien: builder.query({
@@ -36,9 +36,15 @@ export const nhanVienApi = createApi({
         return `nhanVien/search?${queryString}`;
       },
     }),
-
+    downloadExcelNhanVien: builder.query({
+      query: () => ({
+          url: 'nhanVien/downloadExcel',
+          method: 'GET',
+          responseHandler: (response) => response.blob(), // Handle the response as a Blob
+      }),
+  }),
   }),
 });
 
 // Export hooks auto-generated từ RTK Query
-export const { useGetAllNhanVienQuery, useCreateOrUpdateNhanVienMutation, useRemoveNhanVienMutation, useSearchNhanVienQuery, useCountNhanVienQuery } = nhanVienApi;
+export const { useGetAllNhanVienQuery, useCreateOrUpdateNhanVienMutation, useRemoveNhanVienMutation, useSearchNhanVienQuery, useCountNhanVienQuery, useLazyDownloadExcelNhanVienQuery } = nhanVienApi;

@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { baseQueryWithReauth } from './baseQueryWithReauth';
 
 // Tạo API service với createApi
 export const chamCongApi = createApi({
   reducerPath: 'chamCongApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3001/' }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['ChamCong'],
   endpoints: (builder) => ({
     getChamCongMoiNgay: builder.query({
@@ -34,8 +35,15 @@ export const chamCongApi = createApi({
     invalidatesTags: ['ChamCong'],
     }),
 
+    downloadExcelChamCongTheoThang: builder.query({
+      query: ([year,month]) => ({
+          url: `chamCong/downloadExcelChamCongTheoThang?year=${year}&month=${month}`,
+          method: 'GET',
+          responseHandler: (response) => response.blob(), // Handle the response as a Blob
+      }),
+    }),
   }),
 });
 
 // Export hooks auto-generated từ RTK Query
-export const {useCreateChamCongsMutation , useGetChamCongMoiNgayQuery, useGetChamCongMoiThangQuery, useGetChamCongNhanVienChiTietTheoThangQuery, useGetTrangThaiCuaNhanVienMoiThangQuery } = chamCongApi;
+export const {useCreateChamCongsMutation , useGetChamCongMoiNgayQuery, useGetChamCongMoiThangQuery, useGetChamCongNhanVienChiTietTheoThangQuery, useGetTrangThaiCuaNhanVienMoiThangQuery, useLazyDownloadExcelChamCongTheoThangQuery } = chamCongApi;

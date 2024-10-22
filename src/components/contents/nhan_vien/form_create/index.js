@@ -57,18 +57,22 @@ const FormCreateNhanVien = (props) => {
       ...defaultValues,
       ...values,
     };
+    
     if(formValue){
       finalValues._id=formValue._id;
-      if(values.ma_phong_ban==formValue.ten_phong_ban) {
-        values.ma_phong_ban=formValue.ma_phong_ban
+      if(finalValues.ma_phong_ban==formValue.ten_phong_ban) {
+        finalValues.ma_phong_ban=formValue.ma_phong_ban
       }
     }
+
     
     const {ma_nhan_su,chuc_vu, thoi_gian_cong_hien,ma_phong_ban,so_cccd,ngay_cap_cccd,noi_cap_cccd, ...nhanVien}=finalValues;
     const chucVuCoQuan={ma_nhan_su,chuc_vu,thoi_gian_cong_hien,ma_phong_ban};
+
     if(chucVuCoQuan.ma_phong_ban==undefined){
       chucVuCoQuan.ma_phong_ban=null;
     }
+
     const nhanVienCccd={so_cccd,ngay_cap_cccd,noi_cap_cccd};
     await createOrUpdateNhanVien({nhanVien:nhanVien,chucVuCoQuan:chucVuCoQuan,nhanVienCccd:nhanVienCccd}).unwrap();
     form.resetFields();

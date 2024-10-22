@@ -7,14 +7,20 @@ import ThongKeChamCongNhanVien from '../../views/thong_ke/thong_ke_cham_cong_nha
 import ChiTietChamCongNhanVien from '../../views/thong_ke/thong_ke_cham_cong_nhan_vien/chi_tiet_cham_cong_nhan_vien'
 import ThongKeLuongNhanVien from '../../views/thong_ke/thong_ke_luong_nhan_vien'
 import TongQuan from '../../views/tong_quan'
+import Login from '../../views/login'
 
 
 const routers = [
     {
-        path: '/',
+        path: '/tong_quan',
         roleTarget: "ALL",
         element: TongQuan
     },
+    // {
+    //     path: '/login',
+    //     roleTarget: "ALL",
+    //     element: Login
+    // },
     {
         path: '/nhan_vien',
         roleTarget: "ALL",

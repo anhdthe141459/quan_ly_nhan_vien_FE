@@ -5,7 +5,7 @@ import {
   SearchOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { useGetChamCongMoiThangQuery } from '../../../../services/chamCongApis';
+import { useGetChamCongMoiThangQuery, useLazyDownloadExcelChamCongTheoThangQuery } from '../../../../services/chamCongApis';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -23,14 +23,13 @@ const ThongKeChamCongNhanVienContent = () => {
 
     const [selectedMonth, setSelectedMonth] = useState(currentDate.month()+1);
     const [selectedYear, setSelectedYear] = useState(currentDate.year());
-    
+    const [triggerDownload,{ data:downloadExcelChamCong }] = useLazyDownloadExcelChamCongTheoThangQuery([selectedYear,selectedMonth]);
 
     const { data:allNhanVienChamCong, error:allNhanVienChamCongError, isLoading:allNhanVienChamCongIsLoading } = useGetChamCongMoiThangQuery([selectedYear,selectedMonth]);
     const onChangeDatePicker = (date, dateString) => {
         const [year, month] = dateString.split('-');
         setSelectedYear(year);
         setSelectedMonth(month);
-        console.log(year, month);
     };
     const [searchData, setSearchData] = useState();
     const handleClickChiTietChamCongNhanVien = (id, ten_nhan_su, ma_nhan_su) => {
@@ -55,15 +54,32 @@ const ThongKeChamCongNhanVienContent = () => {
 
     const handleSubmit = (event) => {
       event.preventDefault(); // Ngăn chặn gửi form mặc định
-  
-      // Gọi onFinish hoặc xử lý dữ liệu theo cách bạn muốn
-      console.log("Form submission intercepted!");
     };
     
     const handleClickResetFormSearch = () =>{
       form.resetFields();
       setSearchData(allNhanVienChamCong);
     }
+    const handleClickDownloadExcelChamCong = async() =>{
+
+      const { data } = await triggerDownload([selectedYear,selectedMonth]);
+  
+      if (data) {
+        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+        
+        // Tạo thẻ <a> và mô phỏng hành động tải file
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'chamCongNhanVien.xlsx'; // Tên file bạn muốn lưu
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+  
+        // Giải phóng bộ nhớ
+        window.URL.revokeObjectURL(url);
+    }
+  } 
 
     useEffect(() => {
       if (allNhanVienChamCong) {
@@ -82,14 +98,34 @@ const ThongKeChamCongNhanVienContent = () => {
           key: 'ten_nhan_su',
         },
         {
-          title: 'Số giờ làm việc',
-          dataIndex: 'tongSoGioLamViec',
-          key: 'tongSoGioLamViec',
+          title: 'Số ngày đi làm',
+          dataIndex: 'trang_thai_co_mat',
+          key: 'trang_thai_co_mat',
+        },
+        {
+          title: 'Số ngày nghỉ có phép',
+          dataIndex: 'trang_thai_nghi_co_phep',
+          key: 'trang_thai_nghi_co_phep',
+        },
+        {
+          title: 'Số ngày nghỉ không phép',
+          dataIndex: 'trang_thai_nghi_khong_phep',
+          key: 'trang_thai_nghi_khong_phep',
+        },
+        {
+          title: 'Số giờ làm việc chính thức',
+          dataIndex: 'tongSoGioLamViecChinhThuc',
+          key: 'tongSoGioLamViecChinhThuc',
         },
         {
           title: 'Số giờ làm thêm',
           dataIndex: 'tongSoGioLamThem',
           key: 'tongSoGioLamThem',
+        },
+        {
+          title: 'Tổng số giờ làm được trong tháng',
+          dataIndex: 'tong_so_gio_lam',
+          key: 'tong_so_gio_lam',
         },
   
         {
@@ -107,7 +143,12 @@ const ThongKeChamCongNhanVienContent = () => {
   return (
    <div className='container'>
         <div style={{marginBottom:"40px"}}>
-          <h1>Thống kê chấm công của nhân viên </h1>
+          <h1>
+            Thống kê chấm công của nhân viên 
+            <div style={{float:"right"}}> 
+              <Button style={{ borderColor: 'green', color: 'green', marginLeft:"10px" }} onClick={handleClickDownloadExcelChamCong}>Download excel</Button>
+            </div>
+          </h1>
           <div className='search_phong_ban'>
           <Form 
             form={form}

@@ -13,9 +13,7 @@ const { Option } = Select;
 
 const ChamCongContent = () => {
     const [selectedPhongBanId, setSelectedPhongBanId] = useState('all');
-    const [debouncedValue, setDebouncedValue] = useState('');
-    const [time, setTime] = useState(null); // State để lưu giá trị của TimePicker
-    const [disabledTimePicker, setDisabledTimePicker] = useState(false); 
+    
     const handleChangePhongBan = (value) =>{
         setSelectedPhongBanId(value);
     }
@@ -71,7 +69,6 @@ const ChamCongContent = () => {
         delete data['ten_nhan_su'];
         delete data['ma_nhan_su'];
         delete data['ma_phong_ban'];
-        console.log("dataaaa=========123",data); 
         await createChamCongs({chamCongs:data}).unwrap();
         message.success('Gửi bảng chấm công thành công');
       } catch (error) {

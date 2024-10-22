@@ -29,8 +29,8 @@ const ChiTietChamCongNhanVienContent = () =>{
     const { year, month, ten_nhan_su, ma_nhan_su } = location.state || {}; 
     const { id } = useParams(); 
 
-    const { data:allNhanVienChamCong, error:allNhanVienChamCongError, isLoading:allNhanVienChamCongIsLoading } = useGetChamCongNhanVienChiTietTheoThangQuery([year, month, id]);
-    const { data:countTrangThaiChamCongCuaNhanVien, error:countTrangThaiChamCongCuaNhanVienError, isLoading:countTrangThaiChamCongCuaNhanVienIsLoading } = useGetTrangThaiCuaNhanVienMoiThangQuery([year, month, id]);
+    const { data:allNhanVienChamCong,} = useGetChamCongNhanVienChiTietTheoThangQuery([year, month, id]);
+    const { data:countTrangThaiChamCongCuaNhanVien } = useGetTrangThaiCuaNhanVienMoiThangQuery([year, month, id]);
     const [daysInMonth, setDaysInMonth] = useState([]);
     const goBack = () => {
         navigate(-1); // Quay lại trang trước đó
@@ -81,7 +81,7 @@ const ChiTietChamCongNhanVienContent = () =>{
 
         },
         {
-            title: 'Số giờ làm việc',
+            title: 'Số giờ làm việc chính thức',
             dataIndex: 'so_gio_lam_viec',
             key: 'so_gio_lam_viec',
         },
@@ -97,6 +97,15 @@ const ChiTietChamCongNhanVienContent = () =>{
           title: 'Trạng thái',
           dataIndex: 'trang_thai',
           key: 'trang_thai',
+          render: (text) => {
+            if(text=="co_mat"){
+              return "Có mặt"
+            }else if(text=="nghi_co_phep"){
+              return "Nghỉ có phép"
+            }else if(text=="nghi_khong_phep"){
+              return "Nghỉ không phép"
+            }
+          },
         },
     
       ];
@@ -126,10 +135,12 @@ const ChiTietChamCongNhanVienContent = () =>{
     return(
         <>
             <div style={{marginBottom:"40px"}}>
-            <a style={{fontSize:"18px"}} onClick={goBack}>
-            <ArrowLeftOutlined /> Trở lại
-            </a>
-                <h1>Chi tiết chấm công của  <span style={{color:"red"}}>{ten_nhan_su} - {ma_nhan_su}</span></h1>
+            <div style={{marginBottom:"30px"}}>
+              <a style={{fontSize:"18px"}} onClick={goBack}>
+              <ArrowLeftOutlined /> Trở lại
+              </a>
+            </div>
+            <h1>Chi tiết chấm công của  <span style={{color:"red"}}>{ten_nhan_su} - {ma_nhan_su}</span></h1>
             </div>
             <div style={{marginBottom:"30px",justifyContent:"center",alignItems:"center",display:"flex"}}>
               <Row>

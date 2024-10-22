@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import DrawerComponent from '../../drawer';
 import FormCreateBangLuong from './form_create';
-import { useGetAllBangLuongChoNhanVienQuery, useSearchBangLuongQuery } from '../../../services/bangLuongApis';
+import { useGetAllBangLuongChoNhanVienQuery, useLazyDownloadExcelBangLuongQuery, useSearchBangLuongQuery } from '../../../services/bangLuongApis';
 
 
 
@@ -20,6 +20,7 @@ const BangLuongContent = () => {
     const { data:allBangLuong, error:allBangLuongEror, isLoading:allBangLuongIsLoading } = useGetAllBangLuongChoNhanVienQuery(undefined, {
         refetchOnMountOrArgChange: true,
       });
+    const [triggerDownload,{ data:downloadExcelBangLuong }] = useLazyDownloadExcelBangLuongQuery();
     const [searchTerm, setSearchTerm] = useState('');
 
     const { data:searchBangLuong, error:searchBangLuongEror, isLoading:searchBangLuongIsLoading } = useSearchBangLuongQuery(
@@ -36,6 +37,28 @@ const BangLuongContent = () => {
       form.resetFields();
       setSearchTerm({});
     }
+
+    const handleClickDownloadExcelBangLuong = async() =>{
+
+      const { data } = await triggerDownload();
+  
+      if (data) {
+        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob); 
+        
+        // Tạo thẻ <a> và mô phỏng hành động tải file
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'bangLuong.xlsx'; // Tên file bạn muốn lưu
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+  
+        // Giải phóng bộ nhớ
+        window.URL.revokeObjectURL(url);
+    }
+  } 
+
     const columns = [
         {
           title: 'Mã số nhân viên',
@@ -51,33 +74,31 @@ const BangLuongContent = () => {
           title: 'Lương cơ bản',
           dataIndex: 'tien_luong',
           key: 'tien_luong',
+          render: (text) => <p>{`${text?.toLocaleString()} VNĐ`} </p>
         },
         {
           title: 'Phụ cấp',
           dataIndex: 'phu_cap',
           key: 'phu_cap',
+          render: (text) => <p>{`${text?.toLocaleString()} VNĐ`} </p>
         },
         {
             title: 'Khấu trừ',
             dataIndex: 'khau_tru',
             key: 'khau_tru',
-            render: (text) => <p style={{color:"red"}}>{text} </p>
+            render: (text) => <p style={{color:"red"}}>{`${text?.toLocaleString()} VNĐ`} </p>
         },   
         {
-          title: 'Action',
+          title: 'Ngày trả lương định kỳ',
+          dataIndex: 'ngay_tra_luong',
+          key: 'ngay_tra_luong',
+        },
+        {
+          title: '',
           key: 'action',
           render: (_, record) => (
             <Space size="middle">
               <DrawerComponent  textButton={"Cập nhật"} content={<FormCreateBangLuong formValue={record}/>}  title={"Thông tin bảng lương của nhân viên"}/>
-              {/* <Popconfirm
-                title="Xóa phòng ban"
-                description="Bạn có chắc chắn muốn xóa phòng ban này"
-                okText="Có"
-                cancelText="Không"
-                onConfirm={() =>handleClickRemovePhongBan(record._id)}
-              >
-                <Button danger>Xóa</Button>
-              </Popconfirm> */}
             </Space>
           ),
         },
@@ -87,7 +108,12 @@ const BangLuongContent = () => {
   return (
    <div className='container'>
         <div style={{marginBottom:"40px"}}>
-          <h1>Quản lý bảng lương <div style={{float:"right"}}> <DrawerComponent  textButton={"Thêm mới"} content={<FormCreateBangLuong/>} title={"Thông tin bảng lương"}/></div></h1>
+          <h1>Quản lý bảng lương 
+            <div style={{float:"right"}}> 
+              <DrawerComponent  textButton={"Thêm mới"} content={<FormCreateBangLuong/>} title={"Thông tin bảng lương"}/>
+              <Button style={{ borderColor: 'green', color: 'green', marginLeft:"10px" }} onClick={handleClickDownloadExcelBangLuong}>Download excel</Button>
+            </div>
+          </h1>
           <div className='search_phong_ban'>
           <Form 
             form={form}

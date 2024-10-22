@@ -11,8 +11,6 @@ const { Option } = Select;
 
 const FormCreatePhongBan = (props) => {
   const {formValue}=props;
-  console.log(formValue)
-
   const { data:allNhanVienNotTruongPhong, error:allNhanVienNotTruongPhongError, isLoading:allNhanVienNotTruongPhongIsLoading } = useGetAllNhanVienNotPhongBanQuery(formValue?._id);
   const [createOrUpdatePhongBan, result] = useCreateOrUpdatePhongBanMutation();
   const dispatch = useDispatch();
@@ -37,7 +35,6 @@ const FormCreatePhongBan = (props) => {
         values._id=formValue._id;
         values.ma_truong_phong=formValue.ma_truong_phong_id
     }
-    console.log("val;iê==========",values)
     await createOrUpdatePhongBan({phongBan:values}).unwrap();
     form.resetFields();
     onClose();
