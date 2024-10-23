@@ -35,10 +35,13 @@ export const nhanVienApi = createApi({
         const queryString = new URLSearchParams(params).toString();
         return `nhanVien/search?${queryString}`;
       },
+      providesTags: (result) =>
+        result ? [...result.map(({ id }) => ({ type: 'NhanVien', id })), 'NhanVien'] : ['NhanVien'],
+
     }),
     downloadExcelNhanVien: builder.query({
-      query: () => ({
-          url: 'nhanVien/downloadExcel',
+      query: (params) => ({
+          url: `nhanVien/downloadExcel?${new URLSearchParams(params).toString()}`,
           method: 'GET',
           responseHandler: (response) => response.blob(), // Handle the response as a Blob
       }),
@@ -47,4 +50,4 @@ export const nhanVienApi = createApi({
 });
 
 // Export hooks auto-generated từ RTK Query
-export const { useGetAllNhanVienQuery, useCreateOrUpdateNhanVienMutation, useRemoveNhanVienMutation, useSearchNhanVienQuery, useCountNhanVienQuery, useLazyDownloadExcelNhanVienQuery } = nhanVienApi;
+export const { useGetAllNhanVienQuery, useCreateOrUpdateNhanVienMutation, useRemoveNhanVienMutation, useLazySearchNhanVienQuery, useCountNhanVienQuery, useLazyDownloadExcelNhanVienQuery } = nhanVienApi;

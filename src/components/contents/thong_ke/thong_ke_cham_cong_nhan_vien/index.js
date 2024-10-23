@@ -5,8 +5,9 @@ import {
   SearchOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { useGetChamCongMoiThangQuery, useLazyDownloadExcelChamCongTheoThangQuery } from '../../../../services/chamCongApis';
+import { useDownloadExcelChamCongTheoThangMutation, useGetChamCongMoiThangQuery, useLazyDownloadExcelChamCongTheoThangQuery } from '../../../../services/chamCongApis';
 import { useNavigate } from 'react-router-dom';
+import { useGetAllTenPhongBanQuery } from '../../../../services/phongBanApis';
 
 
 
@@ -23,7 +24,9 @@ const ThongKeChamCongNhanVienContent = () => {
 
     const [selectedMonth, setSelectedMonth] = useState(currentDate.month()+1);
     const [selectedYear, setSelectedYear] = useState(currentDate.year());
-    const [triggerDownload,{ data:downloadExcelChamCong }] = useLazyDownloadExcelChamCongTheoThangQuery([selectedYear,selectedMonth]);
+    // const [triggerDownload,{ data:downloadExcelChamCong }] = useLazyDownloadExcelChamCongTheoThangQuery([selectedYear,selectedMonth]);
+    const [triggerDownload, result] = useDownloadExcelChamCongTheoThangMutation();
+    const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
 
     const { data:allNhanVienChamCong, error:allNhanVienChamCongError, isLoading:allNhanVienChamCongIsLoading } = useGetChamCongMoiThangQuery([selectedYear,selectedMonth]);
     const onChangeDatePicker = (date, dateString) => {
@@ -37,7 +40,7 @@ const ThongKeChamCongNhanVienContent = () => {
       };
 
     const searchThongKeChamCong= (values) =>{
-      if(!values.ma_nhan_su && !values.ten_nhan_su){
+      if(!values.ma_nhan_su && !values.ten_nhan_su && !values.ma_phong_ban){
         setSearchData(allNhanVienChamCong);
       }else{
         const results = allNhanVienChamCong.filter(item => {
@@ -62,24 +65,28 @@ const ThongKeChamCongNhanVienContent = () => {
     }
     const handleClickDownloadExcelChamCong = async() =>{
 
-      const { data } = await triggerDownload([selectedYear,selectedMonth]);
-  
-      if (data) {
-        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = window.URL.createObjectURL(blob);
-        
-        // Tạo thẻ <a> và mô phỏng hành động tải file
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'chamCongNhanVien.xlsx'; // Tên file bạn muốn lưu
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-  
-        // Giải phóng bộ nhớ
-        window.URL.revokeObjectURL(url);
-    }
+      await triggerDownload({chamCongs:searchData}).unwrap().then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'chamCongNhanVien.xlsx'); // Tên file tải xuống
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+           // Giải phóng bộ nhớ
+           window.URL.revokeObjectURL(url);
+      })
+      .catch((err) => {
+        console.error('Error downloading file:', err);
+      });
+  ;
   } 
+  const optionTenPhongBans= allTenPhongBan?.map(phongBan=>{
+    return {
+        value:phongBan._id,
+        label:phongBan.ten_phong_ban
+    }
+  })
 
     useEffect(() => {
       if (allNhanVienChamCong) {
@@ -170,6 +177,21 @@ const ThongKeChamCongNhanVienContent = () => {
 
                 >
                     <Input placeholder="Tên nhân viên"/>
+                </Form.Item>
+                </Col>
+                <Col span={6}>
+                <Form.Item
+                    name="ma_phong_ban"
+
+                >
+                    <Select
+                    placeholder="Phòng ban"
+                    allowClear
+                    style={{width: '100%'}}
+                    showSearch
+                    optionFilterProp="label"
+                    options={optionTenPhongBans}
+                />
                 </Form.Item>
                 </Col>
                  

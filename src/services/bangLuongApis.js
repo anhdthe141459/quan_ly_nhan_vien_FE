@@ -41,22 +41,29 @@ export const bangLuongApi = createApi({
     }),
 
     downloadExcelBangLuong: builder.query({
-      query: () => ({
-          url: 'bangLuong/downloadExcel',
+      query: (params) => ({
+          url: `bangLuong/downloadExcel?${new URLSearchParams(params).toString()}`,
           method: 'GET',
           responseHandler: (response) => response.blob(), // Handle the response as a Blob
       }),
-    }),
-    downloadExcelLuongTheoThang: builder.query({
-      query: ([year,month]) => ({
-          url: `bangLuong/downloadExcelLuongTheoThang?year=${year}&month=${month}`,
-          method: 'GET',
+  }),
+    // downloadExcelLuongTheoThang: builder.query({
+    //   query: ([year,month]) => ({
+    //       url: `bangLuong/downloadExcelLuongTheoThang?year=${year}&month=${month}`,
+    //       method: 'GET',
+    //       responseHandler: (response) => response.blob(), // Handle the response as a Blob
+    //   }),
+    // }),
+    downloadExcelLuongTheoThang: builder.mutation({
+      query: (bangLuongs) => ({
+          url:'bangLuong/downloadExcelLuongTheoThang',
+          method: 'POST',
+          body: bangLuongs, 
           responseHandler: (response) => response.blob(), // Handle the response as a Blob
       }),
-    }),
-
+      }),
   }),
 });
 
 // Export hooks auto-generated từ RTK Query
-export const {  useCreateOrUpdateBangLuongMutation , useGetAllBangLuongChoNhanVienQuery, useGetAllTenNhanVienChuaCoBangLuongQuery, useGetLuongNhanVienTheoThangQuery, useSearchBangLuongQuery, useLazyDownloadExcelBangLuongQuery, useLazyDownloadExcelLuongTheoThangQuery } = bangLuongApi;
+export const {  useCreateOrUpdateBangLuongMutation , useGetAllBangLuongChoNhanVienQuery, useGetAllTenNhanVienChuaCoBangLuongQuery, useGetLuongNhanVienTheoThangQuery, useSearchBangLuongQuery, useLazyDownloadExcelBangLuongQuery, useDownloadExcelLuongTheoThangMutation } = bangLuongApi;

@@ -6,7 +6,8 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { useGetLuongNhanVienTheoThangQuery, useLazyDownloadExcelLuongTheoThangQuery } from '../../../../services/bangLuongApis';
+import { useDownloadExcelLuongTheoThangMutation, useGetAllTenNhanVienChuaCoBangLuongQuery, useGetLuongNhanVienTheoThangQuery, useLazyDownloadExcelLuongTheoThangQuery } from '../../../../services/bangLuongApis';
+import { useGetAllTenPhongBanQuery } from '../../../../services/phongBanApis';
 
 
 
@@ -25,10 +26,9 @@ const ThongKeLuongNhanVienContent = () => {
     const { data:luongNhanVienTheoThang, error:luongNhanVienTheoThangError, isLoading:luongNhanVienTheoThangIsLoading } = useGetLuongNhanVienTheoThangQuery([selectedYear,selectedMonth], {
       refetchOnMountOrArgChange: true,
     });
-    const [triggerDownload,{ data:downloadExcelBangLuong }] = useLazyDownloadExcelLuongTheoThangQuery([selectedYear,selectedMonth],{
-      refetchOnMountOrArgChange: true,
-    });
-
+    const [triggerDownload, result] = useDownloadExcelLuongTheoThangMutation();
+    const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
+   
     const onChangeDatePicker = (date, dateString) => {
         const [year, month] = dateString.split('-');
         setSelectedYear(year);
@@ -36,7 +36,7 @@ const ThongKeLuongNhanVienContent = () => {
     };
 
     const searchLuongNhanVien= (values) =>{
-      if(!values.ma_nhan_su && !values.ten_nhan_su){
+      if(!values.ma_nhan_su && !values.ten_nhan_su && !values.ma_phong_ban){
         setSearchData(luongNhanVienTheoThang);
       }else{
         const results = luongNhanVienTheoThang.filter(item => {
@@ -56,25 +56,28 @@ const ThongKeLuongNhanVienContent = () => {
     }
 
     const handleClickDownloadExcelBangLuong = async() =>{
-
-      const { data } = await triggerDownload([selectedYear,selectedMonth]);
-  
-      if (data) {
-        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = window.URL.createObjectURL(blob);
-        
-        // Tạo thẻ <a> và mô phỏng hành động tải file
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'luongNhanVien.xlsx'; // Tên file bạn muốn lưu
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-  
-        // Giải phóng bộ nhớ
-        window.URL.revokeObjectURL(url);
+        await triggerDownload({bangLuongs:searchData}).unwrap().then((response) => {
+          const url = window.URL.createObjectURL(new Blob([response]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'luongNhanVien.xlsx'); // Tên file tải xuống
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+             // Giải phóng bộ nhớ
+             window.URL.revokeObjectURL(url);
+        })
+        .catch((err) => {
+          console.error('Error downloading file:', err);
+        });
     }
-  } 
+  
+    const optionTenPhongBans= allTenPhongBan?.map(phongBan=>{
+      return {
+          value:phongBan._id,
+          label:phongBan.ten_phong_ban
+      }
+    })
 
     useEffect(() => {
       if (luongNhanVienTheoThang) {
@@ -135,22 +138,36 @@ const ThongKeLuongNhanVienContent = () => {
           onFinish={searchLuongNhanVien}
         >
           <Row gutter={16}>
-              <Col span={6}>
+            <Col span={6}>
+            <Form.Item
+                name="ma_nhan_su"
+            >
+                <Input placeholder="Mã nhân viên"/>
+            </Form.Item>
+            </Col>
+            <Col span={6}>
+            <Form.Item
+                name="ten_nhan_su"
+
+            >
+                <Input placeholder="Tên nhân viên"/>
+            </Form.Item>
+            </Col>
+            <Col span={6}>
               <Form.Item
-                  name="ma_nhan_su"
-              >
-                  <Input placeholder="Mã nhân viên"/>
-              </Form.Item>
-              </Col>
-              <Col span={6}>
-              <Form.Item
-                  name="ten_nhan_su"
+                  name="ma_phong_ban"
 
               >
-                  <Input placeholder="Tên nhân viên"/>
+                  <Select
+                  placeholder="Phòng ban"
+                  allowClear
+                  style={{width: '100%'}}
+                  showSearch
+                  optionFilterProp="label"
+                  options={optionTenPhongBans}
+              />
               </Form.Item>
-              </Col>
-                
+              </Col> 
           </Row>
           <Row gutter={16}>
           <Col span={12}>

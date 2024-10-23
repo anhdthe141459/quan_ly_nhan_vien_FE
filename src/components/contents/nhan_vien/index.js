@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table } from 'antd';
-import { useGetAllNhanVienQuery, useLazyDownloadExcelNhanVienQuery, useRemoveNhanVienMutation,useSearchNhanVienQuery } from '../../../services/nhanvienApis';
+import { useGetAllNhanVienQuery, useLazyDownloadExcelNhanVienQuery, useLazySearchNhanVienQuery, useRemoveNhanVienMutation, } from '../../../services/nhanvienApis';
 import DrawerComponent from '../../drawer';
 import FormCreateNhanVien from './form_create';
 import {
@@ -17,19 +17,17 @@ const NhanVienContent = () => {
   const { data:allNhanVien, error:allNhanVienEror, isLoading:allNhanVienIsLoading } = useGetAllNhanVienQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
-  const [triggerDownload,{ data:downloadExcelNhanVien, isLoading:downloadExcelNhanVienLoading }] = useLazyDownloadExcelNhanVienQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
-  const { data:allTenPhongBan, error:allTenPhongBanPhongError, isLoading:allTenPhongBanIsLoading } = useGetAllTenPhongBanQuery();
-  const { data:searchNhanVien, error:searchNhanVienEror, isLoading:searchNhanVienIsLoading } = useSearchNhanVienQuery(
-    searchTerm ? { ten_nhan_su: searchTerm.ten_nhan_su, so_dien_thoai: searchTerm.so_dien_thoai, gioi_tinh: searchTerm.gioi_tinh,
-      nguyen_quan: searchTerm.nguyen_quan, dia_chi_hien_tai:searchTerm.dia_chi_hien_tai,quoc_tich: searchTerm.quoc_tich,
-       ma_nhan_su: searchTerm.ma_nhan_su, thoi_gian_cong_hien:searchTerm.thoi_gian_cong_hien, chuc_vu: searchTerm.chuc_vu, 
-       so_cccd: searchTerm.so_cccd, phong_ban_id:searchTerm.phong_ban_id   } : {}, // Nếu có từ khóa, gọi API tìm kiếm
-    { skip: !searchTerm }
-  );
+  const [triggerDownload,{ data:downloadExcelNhanVien}] = useLazyDownloadExcelNhanVienQuery();
+  const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
+  const  [triggerSearch,{data:searchNhanVien} ] = useLazySearchNhanVienQuery();
   const nhanViens = searchTerm ? searchNhanVien : allNhanVien;
   const onSearchNhanVien = async(values) => {
+    const searchQuery =values ? { ten_nhan_su: values.ten_nhan_su, so_dien_thoai: values.so_dien_thoai, gioi_tinh: values.gioi_tinh,
+      nguyen_quan: values.nguyen_quan, dia_chi_hien_tai:values.dia_chi_hien_tai,quoc_tich: values.quoc_tich,
+       ma_nhan_su: values.ma_nhan_su, thoi_gian_cong_hien:values.thoi_gian_cong_hien, chuc_vu: values.chuc_vu, 
+       so_cccd: values.so_cccd, phong_ban_id:values.phong_ban_id   } : {};
+    await triggerSearch(searchQuery);
+// Nếu có từ khóa, gọi API tìm kiếm
     setSearchTerm(values);
   };
   const handleClickResetFormSearch = () =>{
@@ -49,24 +47,40 @@ const NhanVienContent = () => {
 
   const handleClickDownloadExcelNhanVien = async() =>{
 
-    const { data } = await triggerDownload();
+    await triggerDownload( { ten_nhan_su: searchTerm.ten_nhan_su, so_dien_thoai: searchTerm.so_dien_thoai, gioi_tinh: searchTerm.gioi_tinh,
+      nguyen_quan: searchTerm.nguyen_quan, dia_chi_hien_tai:searchTerm.dia_chi_hien_tai,quoc_tich: searchTerm.quoc_tich,
+       ma_nhan_su: searchTerm.ma_nhan_su, thoi_gian_cong_hien:searchTerm.thoi_gian_cong_hien, chuc_vu: searchTerm.chuc_vu, 
+       so_cccd: searchTerm.so_cccd, phong_ban_id:searchTerm.phong_ban_id   }).unwrap().then((response) => {
+      const url = window.URL.createObjectURL(new Blob([response]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'nhan_vien.xlsx'); // Tên file tải xuống
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+         // Giải phóng bộ nhớ
+         window.URL.revokeObjectURL(url);
+    })
+    .catch((err) => {
+      console.error('Error downloading file:', err);
+    });
 
-    if (data) {
-      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = window.URL.createObjectURL(blob);
+    // if (data) {
+    //   const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    //   const url = window.URL.createObjectURL(blob);
       
-      // Tạo thẻ <a> và mô phỏng hành động tải file
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'file.xlsx'; // Tên file bạn muốn lưu
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+    //   // Tạo thẻ <a> và mô phỏng hành động tải file
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.download = 'nhanvien.xlsx'; // Tên file bạn muốn lưu
+    //   document.body.appendChild(a);
+    //   a.click();
+    //   a.remove();
 
-      // Giải phóng bộ nhớ
-      window.URL.revokeObjectURL(url);
+      // // Giải phóng bộ nhớ
+      // window.URL.revokeObjectURL(url);
   }
-} 
+
 
   const columns = [
     {

@@ -8,6 +8,7 @@ import {
 import DrawerComponent from '../../drawer';
 import FormCreateBangLuong from './form_create';
 import { useGetAllBangLuongChoNhanVienQuery, useLazyDownloadExcelBangLuongQuery, useSearchBangLuongQuery } from '../../../services/bangLuongApis';
+import { useGetAllTenPhongBanQuery } from '../../../services/phongBanApis';
 
 
 
@@ -20,11 +21,12 @@ const BangLuongContent = () => {
     const { data:allBangLuong, error:allBangLuongEror, isLoading:allBangLuongIsLoading } = useGetAllBangLuongChoNhanVienQuery(undefined, {
         refetchOnMountOrArgChange: true,
       });
+    const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
     const [triggerDownload,{ data:downloadExcelBangLuong }] = useLazyDownloadExcelBangLuongQuery();
     const [searchTerm, setSearchTerm] = useState('');
 
     const { data:searchBangLuong, error:searchBangLuongEror, isLoading:searchBangLuongIsLoading } = useSearchBangLuongQuery(
-      searchTerm ? { ten_nhan_su: searchTerm.ten_nhan_su, ma_nhan_su: searchTerm.ma_nhan_su} : {},
+      searchTerm ? { ten_nhan_su: searchTerm.ten_nhan_su, ma_nhan_su: searchTerm.ma_nhan_su, ma_phong_ban:searchTerm.ma_phong_ban} : {},
       { skip: !searchTerm }
     );
     const bangLuongs = searchTerm ? searchBangLuong : allBangLuong;
@@ -37,27 +39,50 @@ const BangLuongContent = () => {
       form.resetFields();
       setSearchTerm({});
     }
+    const optionTenPhongBans= allTenPhongBan?.map(phongBan=>{
+      return {
+          value:phongBan._id,
+          label:phongBan.ten_phong_ban
+      }
+    })
+  
 
     const handleClickDownloadExcelBangLuong = async() =>{
 
-      const { data } = await triggerDownload();
-  
-      if (data) {
-        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = window.URL.createObjectURL(blob); 
-        
-        // Tạo thẻ <a> và mô phỏng hành động tải file
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'bangLuong.xlsx'; // Tên file bạn muốn lưu
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-  
+      await triggerDownload( { ma_nhan_su: searchTerm.ma_nhan_su, ten_nhan_su: searchTerm.ten_nhan_su,  
+        ma_phong_ban:searchTerm.ma_phong_ban   }).unwrap().then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'bangLuong.xlsx'); // Tên file tải xuống
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
         // Giải phóng bộ nhớ
         window.URL.revokeObjectURL(url);
+      })
+      .catch((err) => {
+        console.error('Error downloading file:', err);
+      });
+
+      // const { data } = await triggerDownload();
+  
+      // if (data) {
+      //   const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      //   const url = window.URL.createObjectURL(blob); 
+        
+      //   // Tạo thẻ <a> và mô phỏng hành động tải file
+      //   const a = document.createElement('a');
+      //   a.href = url;
+      //   a.download = 'bangLuong.xlsx'; // Tên file bạn muốn lưu
+      //   document.body.appendChild(a);
+      //   a.click();
+      //   a.remove();
+  
+        // // Giải phóng bộ nhớ
+        // window.URL.revokeObjectURL(url);
     }
-  } 
+  
 
     const columns = [
         {
@@ -134,6 +159,21 @@ const BangLuongContent = () => {
 
                 >
                     <Input placeholder="Tên nhân viên"/>
+                </Form.Item>
+                </Col>
+                <Col span={6}>
+                <Form.Item
+                    name="ma_phong_ban"
+
+                >
+                    <Select
+                    placeholder="Phòng ban"
+                    allowClear
+                    style={{width: '100%'}}
+                    showSearch
+                    optionFilterProp="label"
+                    options={optionTenPhongBans}
+                />
                 </Form.Item>
                 </Col>
                  

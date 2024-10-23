@@ -23,7 +23,9 @@ const FormCreatePhongBan = (props) => {
       ngay_thanh_lap: dayjs(formValue.ngay_thanh_lap),
     }
     form.setFieldsValue(dataForm);
-    form.setFieldsValue({ma_truong_phong:formValue.ten_truong_phong});
+    if(formValue.hasOwnProperty('ten_truong_phong')){
+      form.setFieldsValue({ma_truong_phong:formValue.ten_truong_phong});
+    }
   }
 
   const onClose = () => {
@@ -31,17 +33,21 @@ const FormCreatePhongBan = (props) => {
   };
 
   const onFinish = async(values) => {
+    console.log("val=",values)
     if(formValue){
         values._id=formValue._id;
-        values.ma_truong_phong=formValue.ma_truong_phong_id
+        if(values.ma_truong_phong == formValue.ten_truong_phong){
+          values.ma_truong_phong=formValue.ma_truong_phong_id
+        }
     }
+
     await createOrUpdatePhongBan({phongBan:values}).unwrap();
     form.resetFields();
     onClose();
   };
   const optionNhanVienNotTruongPhong = allNhanVienNotTruongPhong?.map(nhanVien=>{
     return {
-        value:nhanVien._id,
+        value:nhanVien.nhan_vien_id,
         label:`${nhanVien.ma_nhan_su} - ${nhanVien.ten_nhan_su}`
     }
   })

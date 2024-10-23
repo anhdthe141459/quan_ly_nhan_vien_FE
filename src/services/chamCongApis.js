@@ -34,16 +34,17 @@ export const chamCongApi = createApi({
     }),
     invalidatesTags: ['ChamCong'],
     }),
-
-    downloadExcelChamCongTheoThang: builder.query({
-      query: ([year,month]) => ({
-          url: `chamCong/downloadExcelChamCongTheoThang?year=${year}&month=${month}`,
-          method: 'GET',
+    downloadExcelChamCongTheoThang: builder.mutation({
+      query: (chamCongs) => ({
+          url:'chamCong/downloadExcelChamCongTheoThang',
+          method: 'POST',
+          body: chamCongs, 
           responseHandler: (response) => response.blob(), // Handle the response as a Blob
       }),
-    }),
+      }),
+
   }),
 });
 
 // Export hooks auto-generated từ RTK Query
-export const {useCreateChamCongsMutation , useGetChamCongMoiNgayQuery, useGetChamCongMoiThangQuery, useGetChamCongNhanVienChiTietTheoThangQuery, useGetTrangThaiCuaNhanVienMoiThangQuery, useLazyDownloadExcelChamCongTheoThangQuery } = chamCongApi;
+export const {useCreateChamCongsMutation , useGetChamCongMoiNgayQuery, useGetChamCongMoiThangQuery, useGetChamCongNhanVienChiTietTheoThangQuery, useGetTrangThaiCuaNhanVienMoiThangQuery, useDownloadExcelChamCongTheoThangMutation } = chamCongApi;
