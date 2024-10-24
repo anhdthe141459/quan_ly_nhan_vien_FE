@@ -27,12 +27,13 @@ const NhanVienContent = () => {
        ma_nhan_su: values.ma_nhan_su, thoi_gian_cong_hien:values.thoi_gian_cong_hien, chuc_vu: values.chuc_vu, 
        so_cccd: values.so_cccd, phong_ban_id:values.phong_ban_id   } : {};
     await triggerSearch(searchQuery);
-// Nếu có từ khóa, gọi API tìm kiếm
     setSearchTerm(values);
+// Nếu có từ khóa, gọi API tìm kiếm
+   
   };
   const handleClickResetFormSearch = () =>{
     form.resetFields();
-    setSearchTerm({});
+    setSearchTerm();
   }
   const [removeNhanVien] =useRemoveNhanVienMutation();
   const handleClickRemoveNhanVien = (id) =>{

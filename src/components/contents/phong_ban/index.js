@@ -34,7 +34,7 @@ const PhongBanContent = () => {
     { skip: !searchTerm }
   );
   const phongBans = searchTerm ? searchPhongBan : allPhongBan;
-  console.log("phongBans=====",phongBans)
+
   const onSearchPhongBan = async(values) => {
     setSearchTerm(values);
   };
