@@ -28,11 +28,7 @@ const TongQuanContent = () => {
                 <h1>Tổng quan hệ thống</h1>
             </div>
             <div>
-                <Row
-                //  justify="center"
-                //  align="middle"
-                //  style={{ height: '100vh' }}
-                >
+                <Row>
                     <Col span={6 } style={{ display: 'flex', justifyContent: 'center' }}>
                         <Card
                             title="Danh sách nhân viên"

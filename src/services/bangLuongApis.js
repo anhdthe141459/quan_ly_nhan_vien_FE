@@ -47,13 +47,7 @@ export const bangLuongApi = createApi({
           responseHandler: (response) => response.blob(), // Handle the response as a Blob
       }),
   }),
-    // downloadExcelLuongTheoThang: builder.query({
-    //   query: ([year,month]) => ({
-    //       url: `bangLuong/downloadExcelLuongTheoThang?year=${year}&month=${month}`,
-    //       method: 'GET',
-    //       responseHandler: (response) => response.blob(), // Handle the response as a Blob
-    //   }),
-    // }),
+
     downloadExcelLuongTheoThang: builder.mutation({
       query: (bangLuongs) => ({
           url:'bangLuong/downloadExcelLuongTheoThang',

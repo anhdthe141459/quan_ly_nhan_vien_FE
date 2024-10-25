@@ -16,11 +16,6 @@ const routers = [
         roleTarget: "ALL",
         element: TongQuan
     },
-    // {
-    //     path: '/login',
-    //     roleTarget: "ALL",
-    //     element: Login
-    // },
     {
         path: '/nhan_vien',
         roleTarget: "ALL",

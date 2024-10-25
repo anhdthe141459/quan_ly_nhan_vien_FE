@@ -123,9 +123,6 @@ const FormCreatePhongBan = (props) => {
           <Button style={{width:"100px"}} type="primary" htmlType="submit">
             Gửi
           </Button>
-          {/* <Button style={{marginLeft:"20px"}} onClick={handleReset} >
-            Cancel
-          </Button> */}
         </Form.Item>
       </Col>
       

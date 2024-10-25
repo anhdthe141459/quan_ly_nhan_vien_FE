@@ -66,20 +66,6 @@ const NhanVienContent = () => {
       console.error('Error downloading file:', err);
     });
 
-    // if (data) {
-    //   const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    //   const url = window.URL.createObjectURL(blob);
-      
-    //   // Tạo thẻ <a> và mô phỏng hành động tải file
-    //   const a = document.createElement('a');
-    //   a.href = url;
-    //   a.download = 'nhanvien.xlsx'; // Tên file bạn muốn lưu
-    //   document.body.appendChild(a);
-    //   a.click();
-    //   a.remove();
-
-      // // Giải phóng bộ nhớ
-      // window.URL.revokeObjectURL(url);
   }
 
 

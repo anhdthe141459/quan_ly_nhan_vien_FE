@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate,Navigate  } from 'react-router-dom';
 import routers from './components/router';
 import Login from './views/login';
 import PrivateRoute from './components/router/privateRoutes';
@@ -35,6 +35,7 @@ function App() {
               />
             );
           })}
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
     </div>
   );

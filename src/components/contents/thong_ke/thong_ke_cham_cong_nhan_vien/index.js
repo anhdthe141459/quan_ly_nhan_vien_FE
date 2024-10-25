@@ -24,7 +24,6 @@ const ThongKeChamCongNhanVienContent = () => {
 
     const [selectedMonth, setSelectedMonth] = useState(currentDate.month()+1);
     const [selectedYear, setSelectedYear] = useState(currentDate.year());
-    // const [triggerDownload,{ data:downloadExcelChamCong }] = useLazyDownloadExcelChamCongTheoThangQuery([selectedYear,selectedMonth]);
     const [triggerDownload, result] = useDownloadExcelChamCongTheoThangMutation();
     const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
 

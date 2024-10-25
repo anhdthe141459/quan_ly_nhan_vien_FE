@@ -74,12 +74,6 @@ const LayoutUser = (props) => {
       <Menu.Item key="1" onClick={() => onClickLogout()}>
         Đăng xuất
       </Menu.Item>
-      {/* <Menu.Item key="2" onClick={() => console.log('Settings clicked')}>
-        Settings
-      </Menu.Item>
-      <Menu.Item key="3" onClick={() => console.log('Logout clicked')}>
-        Logout
-      </Menu.Item> */}
     </Menu>
   );
 
