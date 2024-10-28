@@ -115,7 +115,7 @@ const ChamCongContent = () => {
       ),
     },
     {
-      title: 'Giờ làm thêm',
+      title: 'Số giờ làm thêm',
       dataIndex: 'so_gio_lam_them',
       key: 'so_gio_lam_them',
       render: (_, record,index) => (

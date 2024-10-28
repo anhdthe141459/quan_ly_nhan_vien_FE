@@ -48,7 +48,7 @@ const ChiTietChamCongNhanVienContent = () =>{
         const daysArray = Array.from({ length: daysInCurrentMonth }, (_, i) => {
           return {
             date:today,
-            day: today.date(i + 1).format('DD/MM/YYYY'), // Định dạng ngày
+            day: today.date(i + 1).format('MM/DD/YYYY'), // Định dạng ngày
           };
         });
   
@@ -112,44 +112,45 @@ const ChiTietChamCongNhanVienContent = () =>{
         },
     
       ];
-      function formatDate(inputDate) {
-        // Tách ngày, tháng, và năm từ chuỗi input
-        const [day, month, year] = inputDate.split('/');
-    
-        // Đảm bảo ngày và tháng có 2 chữ số
-        const formattedDay = day.padStart(2, '0');
-        const formattedMonth = month.padStart(2, '0');
-    
-        // Kết hợp lại theo định dạng "DD/MM/YYYY"
-        return `${formattedDay}/${formattedMonth}/${year}`;
-    }
-      const data= daysInMonth.map(day =>{
-        const attendance = allNhanVienChamCong?.find(
-          att => formatDate(new Date(att.ngay_cham_cong).toLocaleDateString()) === day.day
-        );
-        return{
-          ...day,
-          so_gio_lam_viec:attendance ? attendance.so_gio_lam_viec : 0,
-          so_gio_lam_them:attendance ? (attendance?.so_gio_lam_them== undefined ? 0 : attendance.so_gio_lam_them ) : 0
-        }
-      })
-      const attendance1= allNhanVienChamCong?.map(
-        att => new Date(att.ngay_cham_cong).toLocaleDateString()
+    function formatDate(inputDate) {
+      // Tách ngày, tháng, và năm từ chuỗi input
+      const [day, month, year] = inputDate.split('/');
+  
+      // Đảm bảo ngày và tháng có 2 chữ số
+      const formattedDay = day.padStart(2, '0');
+      const formattedMonth = month.padStart(2, '0');
+  
+      // Kết hợp lại theo định dạng "DD/MM/YYYY"
+      return `${formattedDay}/${formattedMonth}/${year}`;
+  }
+    const data= daysInMonth.map(day =>{
+      const attendance = allNhanVienChamCong?.find(
+        att => formatDate(new Date(att.ngay_cham_cong).toLocaleDateString()) === day.day
       );
+      return{
+        ...day,
+        so_gio_lam_viec:attendance ? attendance.so_gio_lam_viec : 0,
+        so_gio_lam_them:attendance ? (attendance?.so_gio_lam_them== undefined ? 0 : attendance.so_gio_lam_them ) : 0
+      }
+    })
+    const attendance1= allNhanVienChamCong?.map(
+      att => new Date(att.ngay_cham_cong).toLocaleDateString()
+    );
 
-      
-      const countTrangThaiChamCong = [
-        { name: 'Có mặt', value: countTrangThaiChamCongCuaNhanVien?.co_mat },
-        { name: 'Nghỉ có phép', value: countTrangThaiChamCongCuaNhanVien?.nghi_co_phep },
-        { name: 'Nghỉ không phép', value: countTrangThaiChamCongCuaNhanVien?.nghi_khong_phep},
-      ];
+    
+    const countTrangThaiChamCong = [
+      { name: 'Có mặt', value: countTrangThaiChamCongCuaNhanVien?.co_mat },
+      { name: 'Nghỉ có phép', value: countTrangThaiChamCongCuaNhanVien?.nghi_co_phep },
+      { name: 'Nghỉ không phép', value: countTrangThaiChamCongCuaNhanVien?.nghi_khong_phep},
+    ];
 
-      const COLORS = ['#00C49F', '#a19430', '#FF8042'];
+    const COLORS = ['#00C49F', '#a19430', '#FF8042'];
 
-      const renderCustomizedLabel = ({ percent, name }) => {
-        if (percent === 0) return null; 
-        return `${name}: ${(percent * 100).toFixed(1)}%`;
-      };
+    const renderCustomizedLabel = ({ percent, name }) => {
+      if (percent === 0) return null; 
+      return `${name}: ${(percent * 100).toFixed(1)}%`;
+    };
+
     return(
         <>
             <div style={{marginBottom:"40px"}}>

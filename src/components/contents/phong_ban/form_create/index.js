@@ -104,14 +104,21 @@ const FormCreatePhongBan = (props) => {
             />
         </Form.Item>
         </Col>
-        <Col span={12}>
-        <Form.Item
-          name="so_luong_nhan_vien"a
-          label="Số lượng nhân vien"
-        >
-            <Input disabled/>
-        </Form.Item>
-      </Col>
+        {
+          formValue!=undefined? (
+            <Col span={12}>
+              <Form.Item
+                name="so_luong_nhan_vien"a
+                label="Số lượng nhân viên"
+              >
+                  <Input disabled/>
+              </Form.Item>
+            </Col>
+          ):(
+            <></>
+          )
+        }
+        
     </Row>
     
     <Space/>

@@ -128,6 +128,11 @@ const NhanVienContent = () => {
       key: 'trinh_do_van_hoa',
     },
     {
+      title: 'Phòng ban',
+      dataIndex: 'ten_phong_ban',
+      key: 'ten_phong_ban',
+    },
+    {
       title: '',
       key: 'action',
       render: (_, record) => (
