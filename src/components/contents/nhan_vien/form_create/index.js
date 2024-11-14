@@ -1,18 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {Col, DatePicker, Form, Input, Row, Select,Button, Space } from 'antd';
-import { useCreateOrUpdateNhanVienMutation,useGetAllNhanVienQuery } from '../../../../services/nhanvienApis';
+import { useCreateOrUpdateNhanVienMutation,useGetAllNhanVienQuery, useGetAvatarNhanVienQuery } from '../../../../services/nhanvienApis';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeDrawer } from '../../../../redux/slices/isOpenDrawerSlice';
 import dayjs from 'dayjs';
 import { useGetAllTenPhongBanQuery } from '../../../../services/phongBanApis';
+import ImageUploader from '../../../upload_image';
 const { Option } = Select;
 
 
 const FormCreateNhanVien = (props) => {
+  const {formValue}=props;
   const { data:allTenPhongBan, error:allTenPhongBanPhongError, isLoading:allTenPhongBanIsLoading } = useGetAllTenPhongBanQuery();
+  const { data:getAvatar, error:getAvatarError, isLoading:getAvatarIsLoading } = useGetAvatarNhanVienQuery(formValue?._id, {
+    skip: !formValue?._id, // Skip query nếu `id` không có giá trị
+  });
+
   const [createOrUpdateNhanVien, result] = useCreateOrUpdateNhanVienMutation();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const [avatar, setAvatar] = useState(null);
+  const avatarRef = useRef();
+  // const getAvatar = (value) =>{
+  //   setAvatar(value);
+  // }
 
   function generateRandomCode() {
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -27,8 +38,7 @@ const FormCreateNhanVien = (props) => {
   
     return result;
   }
-  const {formValue}=props;
-
+  
 
   if(formValue!=undefined){
     const dataForm={
@@ -67,12 +77,12 @@ const FormCreateNhanVien = (props) => {
 
     
     const {ma_nhan_su,chuc_vu, thoi_gian_cong_hien,ma_phong_ban,so_cccd,ngay_cap_cccd,noi_cap_cccd, ...nhanVien}=finalValues;
+    nhanVien.avatar=avatarRef.current;
     const chucVuCoQuan={ma_nhan_su,chuc_vu,thoi_gian_cong_hien,ma_phong_ban};
 
     if(chucVuCoQuan.ma_phong_ban==undefined){
       chucVuCoQuan.ma_phong_ban=null;
     }
-
     const nhanVienCccd={so_cccd,ngay_cap_cccd,noi_cap_cccd};
     await createOrUpdateNhanVien({nhanVien:nhanVien,chucVuCoQuan:chucVuCoQuan,nhanVienCccd:nhanVienCccd}).unwrap();
     form.resetFields();
@@ -95,8 +105,8 @@ const FormCreateNhanVien = (props) => {
       onFinish={onFinish}
     >
 
-    <Row gutter={16}>
-      <Col span={12}>
+    <Row gutter={16} >
+      <Col span={16}>
         <Form.Item
           name="ten_nhan_su"
           label="Tên nhân sự"
@@ -109,8 +119,6 @@ const FormCreateNhanVien = (props) => {
         >
             <Input />
         </Form.Item>
-      </Col>
-      <Col span={12}>
         <Form.Item
           name="so_dien_thoai"
           label="Số điện thoại"
@@ -125,7 +133,12 @@ const FormCreateNhanVien = (props) => {
             },
           ]}
         >
-            <Input />
+             <Input/>
+        </Form.Item>
+      </Col>
+      <Col span={8} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Form.Item name="avatar" label="Ảnh đại diện">
+          <ImageUploader ref={avatarRef} avatar={getAvatar?.avatar} />
         </Form.Item>
       </Col>
     </Row>
@@ -387,6 +400,9 @@ const FormCreateNhanVien = (props) => {
             />
         </Form.Item>
         </Col>
+    </Row>
+    <Row gutter={16}>
+         
     </Row>
     <Row gutter={16}>
       <Col span={12}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table } from 'antd';
+import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table, Pagination, Spin, Flex } from 'antd';
 import { useGetAllNhanVienQuery, useLazyDownloadExcelNhanVienQuery, useLazySearchNhanVienQuery, useRemoveNhanVienMutation, } from '../../../services/nhanvienApis';
 import DrawerComponent from '../../drawer';
 import FormCreateNhanVien from './form_create';
@@ -14,27 +14,44 @@ const { Option } = Select;
 const NhanVienContent = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [form] = Form.useForm();
-  const { data:allNhanVien, error:allNhanVienEror, isLoading:allNhanVienIsLoading } = useGetAllNhanVienQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
-  const [triggerDownload,{ data:downloadExcelNhanVien}] = useLazyDownloadExcelNhanVienQuery();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const shouldFetchAll = !searchTerm;
+  const { data: allNhanVien, error: allNhanVienError, isLoading: allNhanVienIsLoading } = useGetAllNhanVienQuery(
+      shouldFetchAll ? { page, limit } : false, // Chỉ truyền { page, limit } khi shouldFetchAll là true
+      {
+          refetchOnMountOrArgChange: true,
+          skip: !shouldFetchAll // Sử dụng `skip` để ngăn gọi API khi shouldFetchAll là false
+      }
+  );
+  const [triggerDownload,{ data:downloadExcelNhanVien, isLoading:downloadExcelNhanVienIsLoading} ] = useLazyDownloadExcelNhanVienQuery();
   const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
-  const  [triggerSearch,{data:searchNhanVien} ] = useLazySearchNhanVienQuery();
-  const nhanViens = searchTerm ? searchNhanVien : allNhanVien;
+  const  [triggerSearch,{data:searchNhanVien, isLoading:searchNhanVienIsLoading} ] = useLazySearchNhanVienQuery();
+  const nhanViens = searchTerm ? searchNhanVien?.data : allNhanVien?.data;
   const onSearchNhanVien = async(values) => {
     const searchQuery =values ? { ten_nhan_su: values.ten_nhan_su, so_dien_thoai: values.so_dien_thoai, gioi_tinh: values.gioi_tinh,
       nguyen_quan: values.nguyen_quan, dia_chi_hien_tai:values.dia_chi_hien_tai,quoc_tich: values.quoc_tich,
        ma_nhan_su: values.ma_nhan_su, thoi_gian_cong_hien:values.thoi_gian_cong_hien, chuc_vu: values.chuc_vu, 
        so_cccd: values.so_cccd, phong_ban_id:values.phong_ban_id   } : {};
-    await triggerSearch(searchQuery);
-    setSearchTerm(values);
+    setPage(1);
+    await triggerSearch({ searchQuery, page: 1, limit }); 
+    setSearchTerm(values);  
 // Nếu có từ khóa, gọi API tìm kiếm
    
   };
   const handleClickResetFormSearch = () =>{
     form.resetFields();
-    setSearchTerm();
+    setSearchTerm('');
+    setPage(1);
   }
+  const handlePageChange =async (page) => {
+    setPage(page);
+    if(searchTerm){
+      await triggerSearch({ searchQuery:searchTerm, page: page, limit });
+    } 
+
+  };
   const [removeNhanVien] =useRemoveNhanVienMutation();
   const handleClickRemoveNhanVien = (id) =>{
     removeNhanVien(id);
@@ -47,7 +64,7 @@ const NhanVienContent = () => {
   })
 
   const handleClickDownloadExcelNhanVien = async() =>{
-
+    console.log(searchTerm)
     await triggerDownload( { ten_nhan_su: searchTerm.ten_nhan_su, so_dien_thoai: searchTerm.so_dien_thoai, gioi_tinh: searchTerm.gioi_tinh,
       nguyen_quan: searchTerm.nguyen_quan, dia_chi_hien_tai:searchTerm.dia_chi_hien_tai,quoc_tich: searchTerm.quoc_tich,
        ma_nhan_su: searchTerm.ma_nhan_su, thoi_gian_cong_hien:searchTerm.thoi_gian_cong_hien, chuc_vu: searchTerm.chuc_vu, 
@@ -152,6 +169,29 @@ const NhanVienContent = () => {
     },
   ];
 
+  if(allNhanVienIsLoading){
+    return (
+      <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
+        <Spin tip="Loading" size="large" />
+      </div>
+    )
+  }
+
+  if(downloadExcelNhanVienIsLoading){
+    return (
+      <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
+        <Spin tip="Loading" size="large" />
+      </div>
+    )
+  }
+
+  if(searchNhanVienIsLoading){
+    return (
+      <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
+        <Spin tip="Loading" size="large" />
+      </div>
+    )
+  }
 
   return (
     <div className='container'>
@@ -280,7 +320,22 @@ const NhanVienContent = () => {
           </Form>  
           </div>
         </div>
-        <Table columns={columns} dataSource={nhanViens} rowKey="_id"/>
+        <Table
+          columns={columns}
+          dataSource={nhanViens || []} // posts chứa dữ liệu trong phân trang
+          rowKey="_id"
+          pagination={false} // Tắt phân trang trong bảng, sẽ dùng Antd Pagination ở dưới
+        />
+        <div style={{float:"right",marginTop:"10px"}}>
+          <Pagination
+            current={page}
+            total={searchTerm ? searchNhanVien?.total : allNhanVien?.total}
+            pageSize={limit}
+            onChange={handlePageChange}
+            showSizeChanger={false} // Ẩn chọn kích thước trang, nếu bạn muốn có thể bật lại
+          />
+        </div>
+        {/* <Table columns={columns} dataSource={nhanViens} rowKey="_id"/> */}
     </div>
   );
 

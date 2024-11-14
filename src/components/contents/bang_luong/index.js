@@ -1,5 +1,5 @@
 import React, { useEffect, useState ,useCallback } from 'react';
-import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table, DatePicker, TimePicker, message } from 'antd';
+import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table, DatePicker, TimePicker, message, Spin } from 'antd';
 import { debounce } from 'lodash';
 import dayjs from 'dayjs';
 import {
@@ -111,7 +111,14 @@ const BangLuongContent = () => {
           ),
         },
       ];
-
+      
+  if(allBangLuongIsLoading){
+    return (
+      <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
+        <Spin tip="Loading" size="large" />
+      </div>
+    )
+  }
 
   return (
    <div className='container'>

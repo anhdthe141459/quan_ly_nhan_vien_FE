@@ -8,6 +8,7 @@ import ChiTietChamCongNhanVien from '../../views/thong_ke/thong_ke_cham_cong_nha
 import ThongKeLuongNhanVien from '../../views/thong_ke/thong_ke_luong_nhan_vien'
 import TongQuan from '../../views/tong_quan'
 import Login from '../../views/login'
+import GenerateData from '../../views/generate_data'
 
 
 const routers = [
@@ -50,6 +51,11 @@ const routers = [
         path: '/thong_ke/luong_nhan_vien/',
         roleTarget: "ALL",
         element: ThongKeLuongNhanVien
+    },
+    {
+        path: '/generate-data',
+        roleTarget: "ALL",
+        element: GenerateData
     },
 ]
 export default routers

@@ -7,9 +7,17 @@ export const nhanVienApi = createApi({
   tagTypes: ['NhanVien'],
   endpoints: (builder) => ({
     getAllNhanVien: builder.query({
-      query: () => 'nhanVien/getAllNhanVien',
-      providesTags: (result) =>
-        result ? [...result.map(({ id }) => ({ type: 'NhanVien', id })), 'NhanVien'] : ['NhanVien'],
+      query: ({ page, limit }) => `nhanVien/getAllNhanVien?page=${page}&limit=${limit}`,
+      providesTags: ['NhanVien'],
+      // providesTags: (result) =>
+      //   result ? [...result.map(({ id }) => ({ type: 'NhanVien', id })), 'NhanVien'] : ['NhanVien'],
+    }),
+    getAvatarNhanVien: builder.query({
+      query: (id) => ({
+        url: `nhanVien/getAvatar/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'NhanVienDetail', id }],
     }),
     countNhanVien: builder.query({
       query: () => 'nhanVien/countNhanVien',
@@ -21,7 +29,11 @@ export const nhanVienApi = createApi({
          method: 'POST',
          body: nhanVien, 
       }),
-      invalidatesTags: ['NhanVien'],
+      invalidatesTags: (result, error, { id }) => [
+        'NhanVien', // invalidate danh sách để cập nhật lại
+        { type: 'NhanVienDetail', id }, // invalidate chi tiết của nhân viên cụ thể
+      ],
+
     }),
     removeNhanVien: builder.mutation({
       query: (id) => ({
@@ -31,12 +43,11 @@ export const nhanVienApi = createApi({
       invalidatesTags: ['NhanVien'],
     }),
     searchNhanVien: builder.query({
-      query: (params) => {
-        const queryString = new URLSearchParams(params).toString();
+      query: ({ searchQuery, page, limit }) => {
+        const queryString = new URLSearchParams({ query: JSON.stringify(searchQuery), page ,limit }).toString();
         return `nhanVien/search?${queryString}`;
       },
-      providesTags: (result) =>
-        result ? [...result.map(({ id }) => ({ type: 'NhanVien', id })), 'NhanVien'] : ['NhanVien'],
+      providesTags: ['NhanVien'],
 
     }),
     downloadExcelNhanVien: builder.query({
@@ -50,4 +61,4 @@ export const nhanVienApi = createApi({
 });
 
 // Export hooks auto-generated từ RTK Query
-export const { useGetAllNhanVienQuery, useCreateOrUpdateNhanVienMutation, useRemoveNhanVienMutation, useLazySearchNhanVienQuery, useCountNhanVienQuery, useLazyDownloadExcelNhanVienQuery } = nhanVienApi;
+export const { useGetAllNhanVienQuery, useGetAvatarNhanVienQuery , useCreateOrUpdateNhanVienMutation, useRemoveNhanVienMutation, useLazySearchNhanVienQuery, useCountNhanVienQuery, useLazyDownloadExcelNhanVienQuery } = nhanVienApi;

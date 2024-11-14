@@ -54,8 +54,9 @@ export const phongBanApi = createApi({
         }),
         invalidatesTags: ['PhongBan'],
       }),
+
   }),
 });
 
 // Export hooks auto-generated từ RTK Query
-export const {useGetAllPhongBanQuery,useGetAllTenPhongBanQuery,useGetAllNhanVienNotPhongBanQuery, useGetAllNhanVienPhongBanQuery, useCreateOrUpdatePhongBanMutation,useRemovePhongBanMutation, useSearchPhongBanQuery, useCountPhongBanQuery } = phongBanApi;
+export const {useGetAllPhongBanQuery,useGetAllTenPhongBanQuery,useGetAllNhanVienNotPhongBanQuery, useGetAllNhanVienPhongBanQuery, useCreateOrUpdatePhongBanMutation, useRemovePhongBanMutation, useSearchPhongBanQuery, useCountPhongBanQuery, } = phongBanApi;

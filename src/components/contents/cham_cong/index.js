@@ -1,5 +1,5 @@
 import React, { useEffect, useState ,useCallback } from 'react';
-import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table, DatePicker, TimePicker, message } from 'antd';
+import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table, DatePicker, TimePicker, message, Spin } from 'antd';
 import { debounce } from 'lodash';
 import dayjs from 'dayjs';
 import {
@@ -66,9 +66,10 @@ const ChamCongContent = () => {
                 ngay_cham_cong:today.setHours(0, 0, 0, 0),
             }
         });
-        delete data['ten_nhan_su'];
-        delete data['ma_nhan_su'];
-        delete data['ma_phong_ban'];
+        data.forEach((item) => {
+          delete item.ten_nhan_su;
+          delete item.ma_nhan_su;
+        });
         await createChamCongs({chamCongs:data}).unwrap();
         message.success('Gửi bảng chấm công thành công');
       } catch (error) {
@@ -156,7 +157,13 @@ const ChamCongContent = () => {
 
   ];
 
-
+  if(allNhanVienChamCongIsLoading){
+    return (
+      <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
+        <Spin tip="Loading" size="large" />
+      </div>
+    )
+  }
   return (
     <div className='container'>
       <div style={{marginBottom:"40px"}}>

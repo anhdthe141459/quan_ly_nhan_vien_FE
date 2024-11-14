@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
     ArrowLeftOutlined
   } from '@ant-design/icons';
-import { Col, Row, Table } from 'antd';
+import { Col, Row, Spin, Table } from 'antd';
 import { useLocation } from 'react-router-dom';
 import { useGetChamCongNhanVienChiTietTheoThangQuery, useGetTrangThaiCuaNhanVienMoiThangQuery } from '../../../../../services/chamCongApis';
 import dayjs from 'dayjs';
@@ -29,34 +29,48 @@ const ChiTietChamCongNhanVienContent = () =>{
     const { year, month, ten_nhan_su, ma_nhan_su } = location.state || {}; 
     const { id } = useParams(); 
 
-    const { data:allNhanVienChamCong,} = useGetChamCongNhanVienChiTietTheoThangQuery([year, month, id]);
+    const { data:allNhanVienChamCong,isLoading: allNhanVienChamCongIsLoading} = useGetChamCongNhanVienChiTietTheoThangQuery([year, month, id]);
     const { data:countTrangThaiChamCongCuaNhanVien } = useGetTrangThaiCuaNhanVienMoiThangQuery([year, month, id]);
     const [daysInMonth, setDaysInMonth] = useState([]);
     const goBack = () => {
         navigate(-1); // Quay lại trang trước đó
     };
     useEffect(() => {
-      const getDaysInCurrentMonth = () => {
-        const today = dayjs(); // Lấy ngày hiện tại
-        const year = today.year();
-        const month = today.month(); // 0-11 (0 = January, 11 = December)
-  
-        // Xác định số ngày trong tháng
-        const daysInCurrentMonth = today.daysInMonth();
+      const getDaysInCurrentMonth = (year, month) => {
+        const startOfMonth = dayjs(`${year}-${month}-01`).startOf('month');  // Start of the month
+        const endOfMonth = startOfMonth.endOf('month');  // End of the month
         
-        // Tạo mảng chứa các ngày trong tháng
-        const daysArray = Array.from({ length: daysInCurrentMonth }, (_, i) => {
-          return {
-            date:today,
-            day: today.date(i + 1).format('MM/DD/YYYY'), // Định dạng ngày
-          };
-        });
+        const days = [];
+        let currentDay = startOfMonth;
+      
+        // Loop through each day of the month
+        while (currentDay.isBefore(endOfMonth) || currentDay.isSame(endOfMonth, 'day')) {
+          days.push({day:currentDay.format('MM/DD/YYYY')});  // Store day in 'YYYY-MM-DD' format
+          currentDay = currentDay.add(1, 'day');  // Move to the next day
+        }
+      
+        return days;
+        // const today = dayjs(); // Lấy ngày hiện tại
+        // const year = today.year();
+        // const month = today.month(); // 0-11 (0 = January, 11 = December)
   
-        return daysArray;
+        // // Xác định số ngày trong tháng
+        // const daysInCurrentMonth = today.daysInMonth();
+        
+        // // Tạo mảng chứa các ngày trong tháng
+        // const daysArray = Array.from({ length: daysInCurrentMonth }, (_, i) => {
+        //   return {
+        //     date:today,
+        //     day: today.date(i + 1).format('MM/DD/YYYY'), // Định dạng ngày
+        //   };
+        // });
+  
+        // return daysArray;
       };
   
       // Cập nhật state
-      const daysArray = getDaysInCurrentMonth();
+      const daysArray = getDaysInCurrentMonth(year, month);
+
       setDaysInMonth(daysArray);
     }, []);
  
@@ -123,6 +137,7 @@ const ChiTietChamCongNhanVienContent = () =>{
       // Kết hợp lại theo định dạng "DD/MM/YYYY"
       return `${formattedDay}/${formattedMonth}/${year}`;
   }
+
     const data= daysInMonth.map(day =>{
       const attendance = allNhanVienChamCong?.find(
         att => formatDate(new Date(att.ngay_cham_cong).toLocaleDateString()) === day.day
@@ -133,6 +148,7 @@ const ChiTietChamCongNhanVienContent = () =>{
         so_gio_lam_them:attendance ? (attendance?.so_gio_lam_them== undefined ? 0 : attendance.so_gio_lam_them ) : 0
       }
     })
+
     const attendance1= allNhanVienChamCong?.map(
       att => new Date(att.ngay_cham_cong).toLocaleDateString()
     );
@@ -151,6 +167,14 @@ const ChiTietChamCongNhanVienContent = () =>{
       return `${name}: ${(percent * 100).toFixed(1)}%`;
     };
 
+    if(allNhanVienChamCongIsLoading){
+      return (
+        <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
+          <Spin tip="Loading" size="large" />
+        </div>
+      )
+    }
+
     return(
         <>
             <div style={{marginBottom:"40px"}}>
@@ -159,7 +183,7 @@ const ChiTietChamCongNhanVienContent = () =>{
               <ArrowLeftOutlined /> Trở lại
               </a>
             </div>
-            <h1>Chi tiết chấm công của  <span style={{color:"red"}}>{ten_nhan_su} - {ma_nhan_su}</span></h1>
+            <h1>Chi tiết chấm công tháng {month} năm {year} của  <span style={{color:"red"}}>{ten_nhan_su} - {ma_nhan_su}</span></h1>
             </div>
             <div style={{marginBottom:"30px",justifyContent:"center",alignItems:"center",display:"flex"}}>
               <Row>

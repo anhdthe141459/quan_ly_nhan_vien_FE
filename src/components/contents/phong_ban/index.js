@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table, DatePicker } from 'antd';
+import { Space,Button,Popconfirm,Form,Col,Row,Input,Select,Table, DatePicker, Spin } from 'antd';
 import { useGetAllNhanVienNotPhongBanQuery, useGetAllPhongBanQuery, useRemovePhongBanMutation, useSearchPhongBanQuery } from '../../../services/phongBanApis';
 import DrawerComponent from '../../drawer';
 import FormCreatePhongBan from './form_create';
@@ -18,9 +18,9 @@ const PhongBanContent = () => {
     refetchOnMountOrArgChange: true,
   });
   const [selectedPhongBanId, setSelectedPhongBanId] = useState(null);
-  const { data:allNhanVienNotTruongPhong, error:allNhanVienNotTruongPhongError, isLoading:allNhanVienNotTruongPhongIsLoading } = useGetAllNhanVienNotPhongBanQuery(selectedPhongBanId,{
-    refetchOnMountOrArgChange: true,
-  });
+  // const { data:allNhanVienNotTruongPhong, error:allNhanVienNotTruongPhongError, isLoading:allNhanVienNotTruongPhongIsLoading } = useGetAllNhanVienNotPhongBanQuery(selectedPhongBanId,{
+  //   refetchOnMountOrArgChange: true,
+  // });
 
   const [removePhongBan] =useRemovePhongBanMutation();
   const handleClickRemovePhongBan = (id) =>{
@@ -90,6 +90,13 @@ const PhongBanContent = () => {
     },
   ];
 
+  if(allPhongBanIsLoading){
+    return (
+      <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
+        <Spin tip="Loading" size="large" />
+      </div>
+    )
+  }
 
   return (
     <div className='container'>
