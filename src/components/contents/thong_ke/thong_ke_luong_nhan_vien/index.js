@@ -20,13 +20,15 @@ const ThongKeLuongNhanVienContent = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const currentDate = dayjs();
+
+    const [isLoading, setIsLoading] = useState(false);
     const [searchData, setSearchData] = useState();
     const [selectedMonth, setSelectedMonth] = useState(currentDate.month()+1);
     const [selectedYear, setSelectedYear] = useState(currentDate.year());
-    const { data:luongNhanVienTheoThang, error:luongNhanVienTheoThangError, isLoading:luongNhanVienTheoThangIsLoading } = useGetLuongNhanVienTheoThangQuery([selectedYear,selectedMonth], {
+    const { data:luongNhanVienTheoThang, isLoading:luongNhanVienTheoThangIsLoading , isFetching:luongNhanVienTheoThangIsLFetching } = useGetLuongNhanVienTheoThangQuery([selectedYear,selectedMonth], {
       refetchOnMountOrArgChange: true,
     });
-    const [triggerDownload, result] = useDownloadExcelLuongTheoThangMutation();
+    const [triggerDownload, {isLoading:downloadExcelThongKeBangLuongIsLoading, isFetching: downloadExcelThongKeBangLuongIsFetching}] = useDownloadExcelLuongTheoThangMutation();
     const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
    
     const onChangeDatePicker = (date, dateString) => {
@@ -80,6 +82,14 @@ const ThongKeLuongNhanVienContent = () => {
     })
 
     useEffect(() => {
+      if (luongNhanVienTheoThangIsLoading || luongNhanVienTheoThangIsLFetching || downloadExcelThongKeBangLuongIsLoading ||downloadExcelThongKeBangLuongIsFetching ) {
+          setIsLoading(true)
+      }else{
+        setIsLoading(false)
+      }
+    }, [ luongNhanVienTheoThangIsLoading, luongNhanVienTheoThangIsLFetching, downloadExcelThongKeBangLuongIsLoading, downloadExcelThongKeBangLuongIsFetching]);
+
+    useEffect(() => {
       if (luongNhanVienTheoThang) {
         setSearchData(luongNhanVienTheoThang); // Cập nhật state khi có dữ liệu mới
       }
@@ -121,7 +131,7 @@ const ThongKeLuongNhanVienContent = () => {
   
       ];
 
-  if(luongNhanVienTheoThangIsLoading){
+  if(isLoading){
     return (
       <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
         <Spin tip="Loading" size="large" />

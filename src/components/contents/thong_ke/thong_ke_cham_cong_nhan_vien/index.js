@@ -21,13 +21,13 @@ const ThongKeChamCongNhanVienContent = () => {
     const navigate = useNavigate();
     const currentDate = dayjs();
 
-
+    const [isLoading, setIsLoading] = useState(false);
     const [selectedMonth, setSelectedMonth] = useState(currentDate.month()+1);
     const [selectedYear, setSelectedYear] = useState(currentDate.year());
-    const [triggerDownload, result] = useDownloadExcelChamCongTheoThangMutation();
+    const [triggerDownload, {isLoading:downloadExcelThongKeChamCongIsLoading, isFetching: downloadExcelThongKeChamCongIsFetching }] = useDownloadExcelChamCongTheoThangMutation();
     const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
 
-    const { data:allNhanVienChamCong, error:allNhanVienChamCongError, isLoading:allNhanVienChamCongIsLoading } = useGetChamCongMoiThangQuery([selectedYear,selectedMonth]);
+    const { data:allNhanVienChamCong, error:allNhanVienChamCongError, isLoading:allNhanVienChamCongIsLoading, isFetching: allNhanVienChamCongIsFetching } = useGetChamCongMoiThangQuery([selectedYear,selectedMonth]);
     const onChangeDatePicker = (date, dateString) => {
         const [year, month] = dateString.split('-');
         setSelectedYear(year);
@@ -86,12 +86,21 @@ const ThongKeChamCongNhanVienContent = () => {
         label:phongBan.ten_phong_ban
     }
   })
+  useEffect(() => {
+    if (allNhanVienChamCongIsLoading || allNhanVienChamCongIsFetching || downloadExcelThongKeChamCongIsLoading ||downloadExcelThongKeChamCongIsFetching ) {
+        setIsLoading(true)
+    }else{
+      setIsLoading(false)
+    }
+  }, [ allNhanVienChamCongIsLoading, allNhanVienChamCongIsFetching, downloadExcelThongKeChamCongIsLoading, downloadExcelThongKeChamCongIsFetching]);
 
-    useEffect(() => {
-      if (allNhanVienChamCong) {
-        setSearchData(allNhanVienChamCong); // Cập nhật state khi có dữ liệu mới
-      }
-    }, [allNhanVienChamCong]); 
+
+  useEffect(() => {
+    if (allNhanVienChamCong) {
+      setSearchData(allNhanVienChamCong); // Cập nhật state khi có dữ liệu mới
+    }
+  }, [allNhanVienChamCong]); 
+
     const columns = [
         {
           title: 'Mã số nhân viên',
@@ -145,7 +154,7 @@ const ThongKeChamCongNhanVienContent = () => {
         },
       ];
   
-  if(allNhanVienChamCongIsLoading){
+  if(isLoading){
     return (
       <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
         <Spin tip="Loading" size="large" />

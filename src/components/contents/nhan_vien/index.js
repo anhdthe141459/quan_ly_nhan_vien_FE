@@ -16,18 +16,20 @@ const NhanVienContent = () => {
   const [form] = Form.useForm();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const shouldFetchAll = !searchTerm;
-  const { data: allNhanVien, error: allNhanVienError, isLoading: allNhanVienIsLoading } = useGetAllNhanVienQuery(
+  const { data: allNhanVien, isLoading: allNhanVienIsLoading } = useGetAllNhanVienQuery(
       shouldFetchAll ? { page, limit } : false, // Chỉ truyền { page, limit } khi shouldFetchAll là true
       {
           refetchOnMountOrArgChange: true,
           skip: !shouldFetchAll // Sử dụng `skip` để ngăn gọi API khi shouldFetchAll là false
       }
   );
-  const [triggerDownload,{ data:downloadExcelNhanVien, isLoading:downloadExcelNhanVienIsLoading} ] = useLazyDownloadExcelNhanVienQuery();
+  const [triggerDownload,{ isLoading:downloadExcelNhanVienIsLoading, isFetching: downloadExcelNhanVienIsFetching} ] = useLazyDownloadExcelNhanVienQuery();
   const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
-  const  [triggerSearch,{data:searchNhanVien, isLoading:searchNhanVienIsLoading} ] = useLazySearchNhanVienQuery();
+  const  [triggerSearch,{data:searchNhanVien, isLoading:searchNhanVienIsLoading, isFetching:searchNhanVienIsFetching } ] = useLazySearchNhanVienQuery();
   const nhanViens = searchTerm ? searchNhanVien?.data : allNhanVien?.data;
   const onSearchNhanVien = async(values) => {
     const searchQuery =values ? { ten_nhan_su: values.ten_nhan_su, so_dien_thoai: values.so_dien_thoai, gioi_tinh: values.gioi_tinh,
@@ -64,7 +66,6 @@ const NhanVienContent = () => {
   })
 
   const handleClickDownloadExcelNhanVien = async() =>{
-    console.log(searchTerm)
     await triggerDownload( { ten_nhan_su: searchTerm.ten_nhan_su, so_dien_thoai: searchTerm.so_dien_thoai, gioi_tinh: searchTerm.gioi_tinh,
       nguyen_quan: searchTerm.nguyen_quan, dia_chi_hien_tai:searchTerm.dia_chi_hien_tai,quoc_tich: searchTerm.quoc_tich,
        ma_nhan_su: searchTerm.ma_nhan_su, thoi_gian_cong_hien:searchTerm.thoi_gian_cong_hien, chuc_vu: searchTerm.chuc_vu, 
@@ -85,6 +86,14 @@ const NhanVienContent = () => {
 
   }
 
+
+  useEffect(() => {
+    if (allNhanVienIsLoading || downloadExcelNhanVienIsLoading || searchNhanVienIsLoading ||searchNhanVienIsFetching ||downloadExcelNhanVienIsFetching) {
+        setIsLoading(true)
+    }else{
+      setIsLoading(false)
+    }
+  }, [allNhanVienIsLoading, downloadExcelNhanVienIsLoading, searchNhanVienIsLoading, searchNhanVienIsFetching, downloadExcelNhanVienIsFetching]);
 
   const columns = [
     {
@@ -169,23 +178,7 @@ const NhanVienContent = () => {
     },
   ];
 
-  if(allNhanVienIsLoading){
-    return (
-      <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
-        <Spin tip="Loading" size="large" />
-      </div>
-    )
-  }
-
-  if(downloadExcelNhanVienIsLoading){
-    return (
-      <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
-        <Spin tip="Loading" size="large" />
-      </div>
-    )
-  }
-
-  if(searchNhanVienIsLoading){
+  if(isLoading){
     return (
       <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
         <Spin tip="Loading" size="large" />
@@ -242,14 +235,14 @@ const NhanVienContent = () => {
                 </Select>  
               </Form.Item>
             </Col>  
-            <Col span={3}>
+            {/* <Col span={3}>
               <Form.Item
                 name="thoi_gian_cong_hien"
               >
                 <Input placeholder="Số năm làm việc">
                 </Input>  
               </Form.Item>
-            </Col>    
+            </Col>     */}
             <Col span={4}>
               <Form.Item
                 name="so_cccd"

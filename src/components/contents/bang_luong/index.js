@@ -18,14 +18,16 @@ const { Option } = Select;
 
 const BangLuongContent = () => {
     const [form] = Form.useForm();
+  const [isLoading, setIsLoading] = useState(false);
+
     const { data:allBangLuong, error:allBangLuongEror, isLoading:allBangLuongIsLoading } = useGetAllBangLuongChoNhanVienQuery(undefined, {
         refetchOnMountOrArgChange: true,
       });
     const { data:allTenPhongBan,  } = useGetAllTenPhongBanQuery();
-    const [triggerDownload,{ data:downloadExcelBangLuong }] = useLazyDownloadExcelBangLuongQuery();
+    const [triggerDownload,{isLoading:downloadExcelBangLuongIsLoading, isFetching: downloadExcelBangLuongIsFetching}] = useLazyDownloadExcelBangLuongQuery();
     const [searchTerm, setSearchTerm] = useState('');
 
-    const { data:searchBangLuong, error:searchBangLuongEror, isLoading:searchBangLuongIsLoading } = useSearchBangLuongQuery(
+    const { data:searchBangLuong, error:searchBangLuongEror, isLoading:searchBangLuongIsLoading, isFetching:searchBangLuongIsFetching } = useSearchBangLuongQuery(
       searchTerm ? { ten_nhan_su: searchTerm.ten_nhan_su, ma_nhan_su: searchTerm.ma_nhan_su, ma_phong_ban:searchTerm.ma_phong_ban} : {},
       { skip: !searchTerm }
     );
@@ -65,6 +67,14 @@ const BangLuongContent = () => {
         console.error('Error downloading file:', err);
       });
     }
+
+    useEffect(() => {
+      if (allBangLuongIsLoading || downloadExcelBangLuongIsLoading || downloadExcelBangLuongIsFetching ||searchBangLuongIsFetching ||searchBangLuongIsLoading) {
+          setIsLoading(true)
+      }else{
+        setIsLoading(false)
+      }
+    }, [allBangLuongIsLoading, downloadExcelBangLuongIsLoading, downloadExcelBangLuongIsFetching, searchBangLuongIsFetching, searchBangLuongIsLoading]);
   
 
     const columns = [
@@ -112,7 +122,7 @@ const BangLuongContent = () => {
         },
       ];
       
-  if(allBangLuongIsLoading){
+  if(isLoading){
     return (
       <div className='container' style={{display:"flex", justifyContent:"center", alignItems:"center", height:"70vh"}}>
         <Spin tip="Loading" size="large" />
