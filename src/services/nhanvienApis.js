@@ -1,64 +1,83 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { baseQueryWithReauth } from './baseQueryWithReauth';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithReauth } from "./baseQueryWithReauth";
 // Tạo API service với createApi
 export const nhanVienApi = createApi({
-  reducerPath: 'nhanVienApi',
+  reducerPath: "nhanVienApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['NhanVien'],
+  tagTypes: ["NhanVien"],
   endpoints: (builder) => ({
     getAllNhanVien: builder.query({
-      query: ({ page, limit }) => `nhanVien/getAllNhanVien?page=${page}&limit=${limit}`,
-      providesTags: ['NhanVien'],
+      query: () => `nhanVien/getAllNhanVien`,
+      providesTags: ["NhanVien"],
       // providesTags: (result) =>
       //   result ? [...result.map(({ id }) => ({ type: 'NhanVien', id })), 'NhanVien'] : ['NhanVien'],
     }),
     getAvatarNhanVien: builder.query({
       query: (id) => ({
         url: `nhanVien/getAvatar/${id}`,
-        method: 'GET',
+        method: "GET",
       }),
-      providesTags: (result, error, id) => [{ type: 'NhanVienDetail', id }],
+      providesTags: (result, error, id) => [{ type: "NhanVienDetail", id }],
     }),
     countNhanVien: builder.query({
-      query: () => 'nhanVien/countNhanVien',
-      providesTags: ['NhanVien'],
+      query: () => "nhanVien/countNhanVien",
+      providesTags: ["NhanVien"],
     }),
     createOrUpdateNhanVien: builder.mutation({
       query: (nhanVien) => ({
-         url:'nhanVien/crateOrUpdate',
-         method: 'POST',
-         body: nhanVien, 
+        url: "nhanVien/crateOrUpdate",
+        method: "POST",
+        body: nhanVien,
       }),
       invalidatesTags: (result, error, { id }) => [
-        'NhanVien', // invalidate danh sách để cập nhật lại
-        { type: 'NhanVienDetail', id }, // invalidate chi tiết của nhân viên cụ thể
+        "NhanVien", // invalidate danh sách để cập nhật lại
+        { type: "NhanVienDetail", id }, // invalidate chi tiết của nhân viên cụ thể
       ],
-
     }),
     removeNhanVien: builder.mutation({
       query: (id) => ({
         url: `nhanVien/delete/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['NhanVien'],
+      invalidatesTags: ["NhanVien"],
     }),
     searchNhanVien: builder.query({
       query: ({ searchQuery, page, limit }) => {
-        const queryString = new URLSearchParams({ query: JSON.stringify(searchQuery), page ,limit }).toString();
+        const queryString = new URLSearchParams({
+          query: JSON.stringify(searchQuery),
+          page,
+          limit,
+        }).toString();
         return `nhanVien/search?${queryString}`;
       },
-      providesTags: ['NhanVien'],
-
+      providesTags: ["NhanVien"],
     }),
-    downloadExcelNhanVien: builder.query({
-      query: (params) => ({
-          url: `nhanVien/downloadExcel?${new URLSearchParams(params).toString()}`,
-          method: 'GET',
-          responseHandler: (response) => response.blob(), // Handle the response as a Blob
+    // downloadExcelNhanVien: builder.query({
+    //   query: (params) => ({
+    //     url: `nhanVien/downloadExcel?${new URLSearchParams(params).toString()}`,
+    //     method: "GET",
+    //     responseHandler: (response) => response.blob(), // Handle the response as a Blob
+    //   }),
+    // }),
+
+    downloadExcelNhanVien: builder.mutation({
+      query: (nhanViens) => ({
+        url: "nhanVien/downloadExcel",
+        method: "POST",
+        body: nhanViens,
+        responseHandler: (response) => response.blob(), // Handle the response as a Blob
       }),
-  }),
+    }),
   }),
 });
 
 // Export hooks auto-generated từ RTK Query
-export const { useGetAllNhanVienQuery, useGetAvatarNhanVienQuery , useCreateOrUpdateNhanVienMutation, useRemoveNhanVienMutation, useLazySearchNhanVienQuery, useCountNhanVienQuery, useLazyDownloadExcelNhanVienQuery } = nhanVienApi;
+export const {
+  useGetAllNhanVienQuery,
+  useGetAvatarNhanVienQuery,
+  useCreateOrUpdateNhanVienMutation,
+  useRemoveNhanVienMutation,
+  useLazySearchNhanVienQuery,
+  useCountNhanVienQuery,
+  useDownloadExcelNhanVienMutation,
+} = nhanVienApi;
